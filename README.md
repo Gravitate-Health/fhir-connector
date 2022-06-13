@@ -5,7 +5,7 @@ FHIR-CONNECTOR
 [![Latest release](https://img.shields.io/github/v/release/mhucka/readmine.svg&color=b44e88)](https://github.com/mhucka/readmine/releases)
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
 [![Build Status](https://travis-ci.org/anfederico/clairvoyant.svg?branch=master)](https://travis-ci.org/anfederico/clairvoyant)
-[![License](https://img.shields.io/badge/license-Apache-blue.svg)](https://opensource.org/licenses/Apache)
+[![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache)
 
 
 Table of contents
@@ -93,14 +93,16 @@ The connector explain in the previous sections is an example of how we will work
 
 Getting help
 ------------
+In case you find a problem or you need extra help, please use the issues tab to report the issue.
 
 Contributing
 ------------
+To contribute, fork this repository and send a pull request with the changes squashed.
 
 License
 -------
-'''
-This project is distributed under the terms of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0, 'Apache License Version 2.0 (AL2)').  The license applies to this file and other files in the [GitHub repository](https://github.com/Gravitate-Health/fhir-connector, 'GitHub repository') hosting this file.
+```
+This project is distributed under the terms of the [Apache License, Version 2.0 (AL2)](https://www.apache.org/licenses/LICENSE-2.0).  The license applies to this file and other files in the [GitHub repository](https://github.com/Gravitate-Health/fhir-connector) hosting this file.
 
 Copyright 2022 Universidad Politécnica de Madrid
 
@@ -115,14 +117,10 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-'''
+```
 Authors and history
 ---------------------------
-The autors of this repository are: 
-- Alvaro Belmar 
-- Guillermo Mejías
-- Oscar Ansótegui
-- Isabel Varona
+- Isabel Varona ([@isabelvato](https://github.com/isabelvato))
 
 Acknowledgments
 ---------------------------
