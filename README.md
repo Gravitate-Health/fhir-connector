@@ -101,9 +101,9 @@ To contribute, fork this repository and send a pull request with the changes squ
 
 License
 -------
-```
 This project is distributed under the terms of the [Apache License, Version 2.0 (AL2)](https://www.apache.org/licenses/LICENSE-2.0).  The license applies to this file and other files in the [GitHub repository](https://github.com/Gravitate-Health/fhir-connector) hosting this file.
 
+```
 Copyright 2022 Universidad Politécnica de Madrid
 
 Licensed under the Apache License, Version 2.0 (the "License");
