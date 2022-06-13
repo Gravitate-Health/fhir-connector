@@ -52,22 +52,22 @@ The deployment of the app is been explained in the following lines.
 Firstly, is necessary to clone the repository in the command line.  
 
 ```bash
-> git clone _path_
+git clone _path_
 ```
 After that, the folder with all the documents will be in local. We sholud go to the path where the folder has been saved:
 
 ```bash
-> cd path/fhir-connector
+cd path/fhir-connector
 ```
 Once this has been done, we could deploy the container to run the application. For that: 
 
 ```bash
-> docker build -t _name container_ . 
+docker build -t _name container_ . 
 ```
 Finally, the container has been created and is time run it. 
 
 ```bash
-> docker run -it -p 5000:5000 _name container_  
+docker run -it -p 5000:5000 _name container_  
 ```
 
 By executing this command, the service example of the fhir connector will be deploy locally. In the next section, we will explain the way to try it. 
