@@ -12,22 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM  python:3.8.3-alpine
+#FROM  python:3.8.3-alpine
+FROM nikolaik/python-nodejs:python3.11-nodejs20
 
 RUN pip3 install --upgrade pip
 
-# Set to a non-root built-in user `fhir`
-RUN adduser -D myuser 
-USER myuser
-WORKDIR /home/myuser
+WORKDIR /app
 
-COPY --chown=myuser:myuser requirements.txt requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip3 install --user -r requirements.txt
 
-COPY --chown=myuser:myuser . .
+COPY . .
 
-ENV PATH="/home/myuser/.local/bin:${PATH}"
+RUN npm install -g fsh-sushi@2.10.1
+#ENV PATH="/home/myuser/.local/bin:${PATH}"
 
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
+#CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 
-EXPOSE 5000
+CMD ["python3", "./src/app.py"]
+
+#EXPOSE 5000

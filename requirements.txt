@@ -13,4 +13,5 @@
 # limitations under the License.
 
 Flask==2.0.2
-requests
+GitPython==3.1.31
+dotenv==0.21.1
