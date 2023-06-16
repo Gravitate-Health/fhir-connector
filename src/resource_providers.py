@@ -12,13 +12,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from fs_utils import change_direcotry, list_directory_files
+from fs_utils import change_directory, list_directory_files, read_file, list_directory_files_paths
 from git_utils import *
-from fsh_utils import *
+from fhir_utils import *
 from http_utils import *
+import json
+
 # Load variables from .env file
 from dotenv import dotenv_values
 config = dotenv_values()
+
+EPI_REPO = config["EPI_REPO"]
+EPI_SERVER = config["EPI_SERVER"]
+IPS_REPO = config["IPS_REPO"]
+IPS_SERVER = config["IPS_SERVER"]
 
 
 TMP_FOLDER = "/tmp/repos"
@@ -38,8 +45,10 @@ This function:
     2.1 Convert them to json 
     2.2 Upload the generated json directly
 """
+
+
 def update_hl7_epi_resource():
-    clone_git_repo(config["EPI_REPO"], PATH_EPI_REPO)
+    clone_git_repo(EPI_REPO, PATH_EPI_REPO)
     execute_sushi(PATH_EPI_REPO)
     return
 
@@ -54,16 +63,42 @@ PATH_IPS_JSON = f"{PATH_IPS_REPO}/fsh-generated/resources"
 
 """ 
 This function:
-  1. Donwloads epi .fsh files
+  1. Donwloads ips .fsh files
   2. Convert them to json 
   3. Separate bundles into different FHIR resources
   4. Uploads separated resources
 """
+
+
 def update_hl7_ips_resource():
-    clone_git_repo(config["IPS_REPO"], PATH_IPS_REPO)
-    execute_sushi(PATH_IPS_REPO)
-    change_direcotry(PATH_IPS_JSON)
-    files = list_directory_files(PATH_IPS_JSON)
-    print(files)
-    #delete_folder(IPS_REPO_PATH)
+    try:
+        whitelist = config["IPS_WHITELIST"]
+        IPS_LIST = whitelist.strip('][').split(', ') # Convert string to list
+    except:
+        IPS_LIST = list_directory_files(PATH_IPS_JSON)
+    
+    clone_git_repo(IPS_REPO, PATH_IPS_REPO) # 1. Download ips .fsh files
+    execute_sushi(PATH_IPS_REPO) # 2. Convert .fsh files to json
+
+    for resource_file_name in IPS_LIST:
+        print(f"\n______ Reading IPS bundle: {resource_file_name} ______\n")
+
+        path = f"{PATH_IPS_JSON}/{resource_file_name}"
+        file = read_file(path)
+        bundle_json = json.load(file)
+        separated_resources = separate_bundle_into_resources(bundle_json) # 3. Separate bundles into different FHIR resources
+
+        
+        ORDER_LIST = ["Patient", "Practitioner", "Condition", "Medication", "MedicationStatement",  "Composition"]
+        for order_list_type in ORDER_LIST: # Iterate over resource types in the specified order
+            for resource in separated_resources: # Iterate over resources inside bundle
+                resource_type = resource["resourceType"]
+                if resource_type != order_list_type:
+                    continue # Go to next resource as this is not the type we are looking for
+
+                resource_id = resource["id"]
+                url = F"{IPS_SERVER}/{resource_type}/{resource_id}"
+                print(f"Uploading {url} - {resource_type} with id {resource_id}")
+                put_request(url, resource) # 4. Uploads separated resources
+
     return

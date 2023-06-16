@@ -20,15 +20,15 @@ RUN pip3 install --upgrade pip
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
+RUN npm install -g fsh-sushi@2.10.1
 RUN pip3 install --user -r requirements.txt
 
 COPY . .
 
-RUN npm install -g fsh-sushi@2.10.1
 #ENV PATH="/home/myuser/.local/bin:${PATH}"
 
 #CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 
-CMD ["python3", "./src/app.py"]
+CMD ["python3", "app.py"]
 
 #EXPOSE 5000

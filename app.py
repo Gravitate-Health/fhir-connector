@@ -13,19 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-################ GRAVITATE-HEALTH FHIR CONNECTOR ##############
-### This Python app: 
-###  1. Reads files clones HL7 repository
-###  2. Goes to .fsh directory
-###  3. Uses sushi to convert .fsh files into json
-###  4. upload contents to server
-
+################ GRAVITATE-HEALTH FHIR CONNECTOR ################
+# This Python app syncs the following repositories with GH's FOSPS FHIR servers.
+# - https://github.com/hl7-eu/gravitate-health
+# - https://github.com/hl7-eu/gravitate-health-ips
+#################################################################
 import sys
-import os
 
 sys.path.append("./src")
 from resource_providers import *
 
+#TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
+#TODO: Be able to set fixed ids to patient/IPS, to match them with the ones in keycloak.
 if __name__ == "__main__":
     #update_hl7_epi_resource()
     update_hl7_ips_resource()
