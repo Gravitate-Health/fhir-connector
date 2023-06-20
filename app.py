@@ -18,23 +18,25 @@
 # - https://github.com/hl7-eu/gravitate-health
 # - https://github.com/hl7-eu/gravitate-health-ips
 #################################################################
+from dotenv import dotenv_values
 import sys
 import logging
+import logging.config
 
 sys.path.append("./src")
 from resource_providers import *
+from loggers import configure_logging
 
-LOG_LEVEL = "DEBUG"
 
-if LOG_LEVEL == "DEBUG":
-    logging.basicConfig(level=logging.DEBUG)
-if LOG_LEVEL == "INFO":
-    logging.basicConfig(level=logging.INFO)
-else:
-    logging.basicConfig(level=logging.INFO)
-    
-#TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
-#TODO: Be able to set fixed ids to patient/IPS, to match them with the ones in keycloak.
+def configure_environment():
+    config = dotenv_values()
+
+
+# TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
+# TODO: Be able to set fixed ids to patient/IPS, to match them with the ones in keycloak.
 if __name__ == "__main__":
-    #update_hl7_epi_resource()
+    configure_environment()
+    configure_logging(config["LOG_LEVEL"])
+
+    # update_hl7_epi_resource()
     update_hl7_ips_resource()

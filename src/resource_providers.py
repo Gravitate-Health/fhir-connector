@@ -81,7 +81,8 @@ def update_hl7_ips_resource():
     execute_sushi(PATH_IPS_REPO) # 2. Convert .fsh files to json
 
     for resource_file_name in IPS_LIST:
-        logging.info(f"\n______ Reading IPS bundle: {resource_file_name} ______\n")
+        logger = logging.getLogger(__name__)
+        logger.info(f"______ Reading IPS bundle: {resource_file_name} ______")
 
         path = f"{PATH_IPS_JSON}/{resource_file_name}"
         file = read_file(path)
@@ -98,7 +99,7 @@ def update_hl7_ips_resource():
 
                 resource_id = resource["id"]
                 url = F"{IPS_SERVER}/{resource_type}/{resource_id}"
-                logging.info(f"Uploading {url} - {resource_type} with id {resource_id}")
+                logger.info(f"Uploading {url} - {resource_type} with id {resource_id}")
                 put_request(url, resource) # 4. Uploads separated resources
 
     return
