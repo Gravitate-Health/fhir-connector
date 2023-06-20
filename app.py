@@ -38,5 +38,7 @@ if __name__ == "__main__":
     configure_environment()
     configure_logging(config["LOG_LEVEL"])
 
-    # update_hl7_epi_resource()
+    update_hl7_epi_resource()
     update_hl7_ips_resource()
+    
+    exit()
