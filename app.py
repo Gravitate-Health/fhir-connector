@@ -19,10 +19,20 @@
 # - https://github.com/hl7-eu/gravitate-health-ips
 #################################################################
 import sys
+import logging
 
 sys.path.append("./src")
 from resource_providers import *
 
+LOG_LEVEL = "DEBUG"
+
+if LOG_LEVEL == "DEBUG":
+    logging.basicConfig(level=logging.DEBUG)
+if LOG_LEVEL == "INFO":
+    logging.basicConfig(level=logging.INFO)
+else:
+    logging.basicConfig(level=logging.INFO)
+    
 #TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
 #TODO: Be able to set fixed ids to patient/IPS, to match them with the ones in keycloak.
 if __name__ == "__main__":

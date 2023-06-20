@@ -1,14 +1,15 @@
 from fs_utils import change_directory
 from os import system
-
+import logging
 
 def execute_sushi(path):
     change_directory(path)
     command = "sushi ."
 
-    print("\n ----- EXECUTING SUSHI ON .FSH FOLDER ----- \n")
+    logging.info("----- EXECUTING SUSHI ON .FSH FOLDER ----- \n")
+    
     exit_code = system(command)
-    print("\n ----- FINISHED EXECUTING SUSHI ON .FSH FOLDER ----- \n")
+    logging.info("\n ----- FINISHED EXECUTING SUSHI ON .FSH FOLDER ----- \n")
     return
 
 def separate_bundle_into_resources(data):

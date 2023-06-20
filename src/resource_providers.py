@@ -17,6 +17,7 @@ from git_utils import *
 from fhir_utils import *
 from http_utils import *
 import json
+import logging 
 
 # Load variables from .env file
 from dotenv import dotenv_values
@@ -38,16 +39,16 @@ PATH_EPI_REPO = f"{TMP_FOLDER}/epi"
 PATH_EPI_FSH = f"{PATH_EPI_REPO}/input/fsh/examples"
 PATH_EPI_JSON = f"{PATH_EPI_REPO}/fsh-generated/resources"
 
-""" 
-This function:
-  1. Donwloads epi .fsh files
-  2. Iterating over different kind of epis (raw, preprocessed, etc.):
-    2.1 Convert them to json 
-    2.2 Upload the generated json directly
-"""
-
 
 def update_hl7_epi_resource():
+    '''
+    Uploads and updates HL7 EPI repository resources to FHIR server.
+    Steps:
+        1. Donwloads ips .fsh files
+        2. Converts them to json 
+        3. Iterates over different kind of epis (raw, preprocessed, etc.)
+        4. Upload resources
+    '''
     clone_git_repo(EPI_REPO, PATH_EPI_REPO)
     execute_sushi(PATH_EPI_REPO)
     return
@@ -61,16 +62,15 @@ PATH_IPS_REPO = f"{TMP_FOLDER}/ips"
 PATH_IPS_FSH = f"{PATH_IPS_REPO}/input/fsh/examples"
 PATH_IPS_JSON = f"{PATH_IPS_REPO}/fsh-generated/resources"
 
-""" 
-This function:
-  1. Donwloads ips .fsh files
-  2. Convert them to json 
-  3. Separate bundles into different FHIR resources
-  4. Uploads separated resources
-"""
-
-
 def update_hl7_ips_resource():
+    '''
+    Uploads and updates HL7 IPS repository resources to FHIR server.
+    Steps:
+        1. Donwloads ips .fsh files
+        2. Convert them to json 
+        3. Separate bundles into different FHIR resources
+        4. Uploads separated resources
+    '''
     try:
         whitelist = config["IPS_WHITELIST"]
         IPS_LIST = whitelist.strip('][').split(', ') # Convert string to list
@@ -81,7 +81,7 @@ def update_hl7_ips_resource():
     execute_sushi(PATH_IPS_REPO) # 2. Convert .fsh files to json
 
     for resource_file_name in IPS_LIST:
-        print(f"\n______ Reading IPS bundle: {resource_file_name} ______\n")
+        logging.info(f"\n______ Reading IPS bundle: {resource_file_name} ______\n")
 
         path = f"{PATH_IPS_JSON}/{resource_file_name}"
         file = read_file(path)
@@ -98,7 +98,7 @@ def update_hl7_ips_resource():
 
                 resource_id = resource["id"]
                 url = F"{IPS_SERVER}/{resource_type}/{resource_id}"
-                print(f"Uploading {url} - {resource_type} with id {resource_id}")
+                logging.info(f"Uploading {url} - {resource_type} with id {resource_id}")
                 put_request(url, resource) # 4. Uploads separated resources
 
     return
