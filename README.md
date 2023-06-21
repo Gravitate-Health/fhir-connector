@@ -14,9 +14,12 @@ Table of contents
 - [FHIR-CONNECTOR](#fhir-connector)
   - [Table of contents](#table-of-contents)
   - [Introduction](#introduction)
+  - [Features](#features)
   - [Installation](#installation)
     - [Requirements](#requirements)
     - [Deployment](#deployment)
+      - [Docker](#docker)
+      - [Kubernetes](#kubernetes)
   - [Usage](#usage)
   - [Known issues and limitations](#known-issues-and-limitations)
   - [Getting help](#getting-help)
@@ -28,68 +31,66 @@ Table of contents
 
 Introduction
 ------------
-This reporistory includes a first approach to a tool capable of transforming information from different sources into FHIR format. However, for the first version, the connector recreates how it works by means of an example of a Patient. 
+This reporistory includes a first approach to a tool capable of transforming information from different sources into FHIR format.
 
-The following sections in the README document help to install and deploy the connector and understand how the transformation tool has been developed. 
+The following sections in the README document help to install and deploy the connector and understand how the transformation tool has been developed.
+
+Features
+------------
+- Syncs [HL7 Gravitate Health ePI repository](https://github.com/hl7-eu/gravitate-health). Uploads ePI in [this folder](https://github.com/hl7-eu/gravitate-health/tree/master/input/fsh) as bundles to FHIR server.
+- Syncs [HL7 Gravitate Health IPS repository](https://github.com/hl7-eu/gravitate-health-ips). Uploads IPS in [this folder](https://github.com/hl7-eu/gravitate-health-ips/tree/master/input/fsh) as bundles to FHIR server.
 
 Installation
 ------------
 
 ### Requirements
 
-First of all, because the connector has been developed in Python, we will need a framework to deploy the application. In this case, it have been used _Flask v2.0.2_ for the simplicity and speed. 
+First, install requierements:
+```bash
+pip install -r requirements.txt
+```
 
-At the same time, the development of the code requires the use of the _requests_ library, which is also included in this file. Thanks to this library, GET and POST methods can be executed.
+And run the application:
+```bash
+python3 app.py
+```
 
-- requirements.txt
-  - Flask
-  - requests 
+Optionally, you can create a `.env` file and change the following environment variables:
 
+| Task          	| Description                                                 	| Possible values                       	|
+|---------------	|-------------------------------------------------------------	|---------------------------------------	|
+| EPI_REPO      	| https://github.com/hl7-eu/gravitate-health.git              	|                                       	|
+| IPS_REPO      	| https://github.com/hl7-eu/gravitate-health-ips.git          	|                                       	|
+| EPI_SERVER    	| https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	|
+| IPS_SERVER    	| https://fosps.gravitatehealth.eu/ips/api/fhir               	|                                       	|
+| IPS_WHITELIST 	| [Bundle-gravitate-Alicia.json, Bundle-gravitate-Pedro.json] 	|                                       	|
+| LOG_LEVEL     	| INFO                                                        	| CRITICAL, ERROR, WARNING, INFO, DEBUG 	|
 ### Deployment
 
-The deployment of the app is been explained in the following lines. 
+The deployment of the app can be done in Docker or kubernetes.
 
-Firstly, is necessary to clone the repository in the command line.  
-
-```bash
-git clone _path_
-```
-After that, the folder with all the documents will be in local. We sholud go to the path where the folder has been saved:
+#### Docker
 
 ```bash
-cd path/fhir-connector
+git clone https://github.com/Gravitate-Health/fhir-connector
+cd fhir-connector
+docker build . -t YOUR_IMAGE_NAME
+docker run YOUR_IMAGE_NAME
 ```
-Once this has been done, we could deploy the container to run the application. For that: 
+
+#### Kubernetes
 
 ```bash
-docker build -t _name container_ . 
-```
-Finally, the container has been created and is time run it. 
-
-```bash
-docker run -it -p 5000:5000 _name container_  
+kubectl apply -f kubernetes/fhir-connector-configmap.yaml
+kubectl apply -f kubernetes/fhir-connector-cronjob.yaml
 ```
 
-By executing this command, the service example of the fhir connector will be deploy locally. In the next section, we will explain the way to try it. 
 
 Usage
 -----
-Once the container is created and running, through the command terminal returns a localhost address where our service is up. The format will be as follows http://127.0.0.x:5000, where the 5000 indicates the port.
-
-
-![Service fhir connector](./img/fhir.png )
-
-When we open it in the browser we will be able to observe a json in FHIR format, corresponding to a _Patient_. 
-
-In this case, the application _app.py_ has made: 
-
-1. First a GET method from the HAPI server obtaining an example of a patient from the repository. 
-   
-2. Second a POST method (with the information obtained in the GET) to the FHIR server deployed for the Gravitate Health project. 
 
 Known issues and limitations
 ----------------------------
-The connector explain in the previous sections is an example of how we will work the final fhir-connector in the following MVPs. Therefore, take this code as an approximation of the final result. 
 
 Getting help
 ------------
@@ -120,6 +121,7 @@ limitations under the License.
 ```
 Authors and history
 ---------------------------
+- Guillermo Mejías ([@gmej](https://github.com/gmej))
 - Isabel Varona ([@isabelvato](https://github.com/isabelvato))
 
 Acknowledgments
