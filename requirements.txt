@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-Flask==2.0.2
 GitPython==3.1.31
 python-dotenv==0.21.1
 requests==2.22.0

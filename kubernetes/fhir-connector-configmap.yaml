@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fhir-connector-config-map
+data:
+  EPI_REPO: "https://github.com/hl7-eu/gravitate-health.git"
+  IPS_REPO: "https://github.com/hl7-eu/gravitate-health-ips.git"
+  EPI_SERVER: "https://fosps.gravitatehealth.eu/epi/api/fhir"
+  IPS_SERVER: "https://fosps.gravitatehealth.eu/ips/api/fhir"
+  IPS_WHITELIST: |
+    - "Bundle-gravitate-Alicia.json"
+    - "Bundle-gravitate-Pedro.json"
+  LOG_LEVEL: INFO
