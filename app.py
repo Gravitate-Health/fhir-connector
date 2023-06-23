@@ -24,21 +24,26 @@ import logging
 import logging.config
 
 sys.path.append("./src")
-from resource_providers import *
-from loggers import configure_logging
+sys.path.append("./src/providers")
+sys.path.append("./src/utils")
+
+import providers.hl7_git_provider
+from utils.loggers import configure_logging
 
 
-def configure_environment():
-    config = dotenv_values()
+def get_environment():
+    return dotenv_values()
 
 
 # TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
 # TODO: Be able to set fixed ids to patient/IPS, to match them with the ones in keycloak.
 if __name__ == "__main__":
-    configure_environment()
+    
+    hl7_git_provider = providers.hl7_git_provider.Hl7FhirPRovider()
+    config = get_environment()
     configure_logging(config["LOG_LEVEL"])
 
-    update_hl7_epi_resource()
-    update_hl7_ips_resource()
+    #hl7_git_provider.update_hl7_epi_resource()
+    hl7_git_provider.update_hl7_ips_resource()
     
     exit()
