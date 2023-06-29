@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - 
+      id: checkout
       uses: actions/checkout@v2
       with:
         fetch-depth: '0'
@@ -23,25 +24,22 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
         DRY_RUN: true
-
     - 
-      name: echo new tag
+      name: Print tags
       run: |
-        echo "The next tag version will be: ${{ steps.taggerDryRun.outputs.new_tag }}"
-    - 
-      name: echo tag
-      run: |
-        echo "The current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
-    - 
-      name: echo part
-      run: |
-        echo "The version increment was: ${{ steps.taggerDryRun.outputs.part }}"
+        echo "New tag is: ${{ steps.taggerDryRun.outputs.new_tag }}"
+        echo "Current tag is: ${{ steps.taggerDryRun.outputs.tag }}"
+        echo "Increment type is: ${{ steps.taggerDryRun.outputs.part }}"
+    outputs:
+      new-tag: ${{steps.taggerDryRun.outputs.new_tag}}
+      current-tag: ${{steps.taggerDryRun.outputs.tag}}
+      increment-type: ${{steps.taggerDryRun.outputs.part}}
 
   build-and-push:
     needs: semantic-versioning-dry-run
     runs-on: ubuntu-latest
     steps:
-      -
+      - 
         name: Checkout
         uses: actions/checkout@v3
       -
@@ -61,8 +59,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{secrets.REGISTRY_URL}}/fhir-connector:latest , ${{secrets.REGISTRY_URL}}/fhir-connector:${{needs.semantic-versioning-dry-run.outputs.tag}}
-          #tags: ${{secrets.REGISTRY_URL}}/fhir-connector:latest
+          tags: ${{secrets.REGISTRY_URL}}/fhir-connector:latest , ${{secrets.REGISTRY_URL}}/fhir-connector:${{ needs.semantic-versioning-dry-run.outputs.new-tag }}
       
   semantic-versioning:
     runs-on: ubuntu-latest
