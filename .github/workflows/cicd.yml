@@ -66,6 +66,9 @@ jobs:
     needs: build-and-push
     steps:
       - 
+        id: checkout
+        uses: actions/checkout@v2
+      - 
         name: Minor version for each merge
         id: taggerFinal
         uses: anothrNick/github-tag-action@1.36.0
