@@ -2,9 +2,9 @@
 FHIR-CONNECTOR 
 =================================================
 
-[![Latest release](https://img.shields.io/github/v/release/mhucka/readmine.svg&color=b44e88)](https://github.com/mhucka/readmine/releases)
+![Latest release](https://img.shields.io/github/v/release/Gravitate-Health/fhir-connector)
+![Actions workflow](https://github.com/Gravitate-Health/fhir-connector/actions/workflows/cicd.yml/badge.svg)
 ![Python](https://img.shields.io/badge/python-v3.8+-blue.svg)
-[![Build Status](https://travis-ci.org/anfederico/clairvoyant.svg?branch=master)](https://travis-ci.org/anfederico/clairvoyant)
 [![License](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache)
 
 
