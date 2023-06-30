@@ -9,10 +9,19 @@ on:
 env:
   REPO_NAME: fhir-connector
   REGISTRY_URL: gravitate-registry.cr.de-fra.ionos.com
-
 concurrency: production
 
 jobs:
+  setup-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        id: environment
+        run: |
+          echo "::set-output name=image::${REGISTRY_URL}/${REPO_NAME}"
+    outputs:
+      image: ${{ steps.environment.outputs.image }}
+
   #example-job:
   #  #if: ${{ github.event.act }} # Run only locally with 'act'
   #  #if: ${{ !github.event.act }} # Run only in production
@@ -55,8 +64,11 @@ jobs:
       increment-type: ${{ steps.taggerDryRun.outputs.part }}
 
   docker:
-    needs: semantic-versioning-dry-run
+    needs: [setup-environment, semantic-versioning-dry-run]
     if: always()
+    env:
+      TAG: ${{ needs.semantic-versioning-dry-run.outputs.new-tag || 'latest' }} 
+      IMAGE: ${{ needs.setup-environment.outputs.image }}
     runs-on: ubuntu-latest
     steps:
       - 
@@ -80,7 +92,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
-          tags: ${{ env.REGISTRY_URL }}/${{ env.REPO_NAME }}:latest
+          tags: ${{ env.IMAGE }}:latest
       -
         name: Build and Push image to registry
         uses: docker/build-push-action@v4
@@ -89,9 +101,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.REGISTRY_URL }}/${{ env.REPO_NAME }}:latest , ${{ env.REGISTRY_URL }}/${{ env.REPO_NAME }}:${{ needs.semantic-versioning-dry-run.outputs.new-tag }}
-    outputs:
-      image-name: ${{ env.REGISTRY_URL }}/${{ env.REPO_NAME }}:${{ needs.semantic-versioning-dry-run.outputs.new-tag }}
+          tags: ${{ env.IMAGE }}:latest , ${{ env.IMAGE }}:${{ env.TAG }}
 
   semantic-versioning:
     runs-on: ubuntu-latest
