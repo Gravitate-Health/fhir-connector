@@ -18,11 +18,14 @@ EPI_ORDER_LIST = [
     "PackagedProductDefinition",
     "SubstanceDefinition",
     "Ingredient",
-    "ClinicalUseDefinition" "Composition",
+    "ClinicalUseDefinition",
+    "Composition",
     "Bundle",
     "CodeSystem",
     "Observation",
-    "Questionnaire" "QuestionnaireResponse" "StructureDefinition",
+    "Questionnaire",
+    "QuestionnaireResponse",
+    "StructureDefinition",
     "ValueSet",
 ]
 
