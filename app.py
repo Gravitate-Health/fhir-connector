@@ -43,7 +43,7 @@ if __name__ == "__main__":
     config = get_environment()
     configure_logging(config["LOG_LEVEL"])
 
-    #hl7_git_provider.update_hl7_epi_resource()
+    hl7_git_provider.update_hl7_epi_resource()
     hl7_git_provider.update_hl7_ips_resource()
     
     exit()

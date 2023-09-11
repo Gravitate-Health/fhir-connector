@@ -19,14 +19,15 @@ EPI_ORDER_LIST = [
     "SubstanceDefinition",
     "Ingredient",
     "ClinicalUseDefinition",
-    "Composition",
-    "Bundle",
     "CodeSystem",
     "Observation",
     "Questionnaire",
     "QuestionnaireResponse",
     "StructureDefinition",
     "ValueSet",
+    "Composition",
+    "Bundle",
+    "List",
 ]
 
 
