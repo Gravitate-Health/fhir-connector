@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
             - name: fhir-connector
-              image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:v0.1
+              image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
               envFrom:
                 - configMapRef:
                     name: fhir-connector-config-map

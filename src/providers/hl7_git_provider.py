@@ -88,46 +88,41 @@ class Hl7FhirPRovider:
             config = configs.hl7_ips.get_configuration()
         return config
 
-    def update_hl7_epi_resource(self):
+    def update_hl7_resource(self, type: str, withWhitelist: bool = False):
         """
-        Downloads HL7 EPI repository and updates resources to FHIR server.
+        Downloads HL7 repository and updates resources to FHIR server.
         Steps:
-            1. Donwloads epi .fsh files
-            2. Converts them to json
-            4. Upload resources
-        """
-        self.logger.info(f"Updating EPI reosurces...")
-        epi_config = self.read_fhir_server_config("epi")
-        fhir_resources = self.get_resources_from_git_repository(epi_config)
-        self.update_server_from_git_repo(epi_config, fhir_resources)
-
-        return
-
-    def update_hl7_ips_resource(self):
-        """
-        Downloads HL7 IPS repository and updates resources to FHIR server.
-        Steps:
-            1. Donwloads ips .fsh files
+            1. Donwloads .fsh files
             2. Convert them to json
             3. Separate bundles into different FHIR resources
             4. Uploads separated resources
         """
-        self.logger.info(f"Updating IPS reosurces...")
-        ips_config = self.read_fhir_server_config("ips")
-
-        try:
-            whitelist = ips_config["whiteList"]
-        except:
+        
+        if (type != "epi" and type != "ips"):
+            self.logger.error(f"Invalid FSH type: {type}")
+            return
+        
+        self.logger.info(f"Updating {type} reosurces...")
+        config = self.read_fhir_server_config(type)
+        
+        whitelist = []
+        if(withWhitelist):
+            try:
+                withWhitelist = config["whiteList"]
+            except:
+                withWhitelist = []
+        else:
             whitelist = []
-        fhir_resources = self.get_resources_from_git_repository(ips_config, whitelist)
+        fhir_resources = self.get_resources_from_git_repository(config, whitelist)
         sliced_resources = []
         for resource in fhir_resources:
-            if resource["resourceType"] == "Bundle":
+            if resource["resourceType"] in ["Bundle"]:
                 pieces = self.fhir_provider.separate_bundle_into_resources(resource)
                 for item in pieces:
                     sliced_resources.append(item)
             else:
                 sliced_resources.append(resource)
-        self.update_server_from_git_repo(ips_config, sliced_resources)
+        self.update_server_from_git_repo(config, sliced_resources)
 
         return
+    
