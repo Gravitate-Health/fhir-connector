@@ -20,7 +20,7 @@ RUN pip3 install --upgrade pip
 WORKDIR /app
 
 COPY requirements.txt requirements.txt
-RUN npm install -g fsh-sushi@2.10.1
+RUN npm install -g fsh-sushi@3.4.0
 RUN pip3 install --user -r requirements.txt
 
 COPY . .
