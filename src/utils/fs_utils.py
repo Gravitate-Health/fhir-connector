@@ -1,5 +1,5 @@
 from shutil import rmtree
-from os import listdir, chdir
+from os import listdir, chdir, mkdir, path
 
 
 def delete_folder(path):
@@ -24,3 +24,16 @@ def change_directory(path):
 
 def read_file(path):
     return open(path)
+
+
+def write_file(path, content):
+    f = open(path, "w")
+    f.write(content)
+    f.close()
+    return
+
+
+def create_directory_if_not_exists(directory_path):
+    if not path.exists(directory_path):
+        mkdir(directory_path)
+    return

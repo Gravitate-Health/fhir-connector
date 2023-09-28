@@ -64,7 +64,22 @@ Optionally, you can create a `.env` file and change the following environment va
 | EPI_SERVER    	| https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	|
 | IPS_SERVER    	| https://fosps.gravitatehealth.eu/ips/api/fhir               	|                                       	|
 | IPS_WHITELIST 	| [Bundle-gravitate-Alicia.json, Bundle-gravitate-Pedro.json] 	|                                       	|
-| LOG_LEVEL     	| INFO                                                        	| CRITICAL, ERROR, WARNING, INFO, DEBUG 	|
+| LOG_LEVEL     	| INFO                                                        	| CRITICAL, ERROR, WARNING, INFO, DEBUG  	|
+| EMAIL_ENABLED   | Enable sending of emails                                     	| true                                    |
+| EMAIL_SENDER    | Email address of the sender                                 	|                                        	|
+| EMAIL_SMTP_SERVER| SMTP server address                                         	|                                        	|
+| EMAIL_RECIPIENT	| Email address or list to send the contents                  	|                                        	|
+
+The environment `EMAIL_PASSWORD` must be set via k8s secret:
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: fhir-connector-email-password
+data:
+  password: BASE64_ENCODED_PASSWORD
+```
+
 ### Deployment
 
 The deployment of the app can be done in Docker or kubernetes.

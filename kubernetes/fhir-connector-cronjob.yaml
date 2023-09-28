@@ -15,6 +15,20 @@ spec:
           containers:
             - name: fhir-connector
               image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+              env:
+                - name: EMAIL_ENABLED
+                  value: "true"
+                - name: EMAIL_SENDER
+                  value: fosps-noreply@lst.tfo.upm.es
+                - name: EMAIL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: fhir-connector-email-password
+                      key: password
+                - name: EMAIL_SMTP_SERVER
+                  value: smtp.lst.tfo.upm.es
+                - name: EMAIL_RECIPIENT
+                  value: fosps-logs@lst.tfo.upm.es
               envFrom:
                 - configMapRef:
                     name: fhir-connector-config-map
