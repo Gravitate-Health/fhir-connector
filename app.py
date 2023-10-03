@@ -22,6 +22,8 @@ from dotenv import dotenv_values
 import sys
 import logging
 import logging.config
+import json
+from datetime import datetime, timezone
 
 sys.path.append("./src")
 sys.path.append("./src/providers")
@@ -30,6 +32,11 @@ sys.path.append("./src/utils")
 import providers.hl7_git_provider
 from utils.loggers import configure_logging
 
+from utils.mail_client import create_message, add_attachment, object_is_email_message, send_mail
+from utils.fs_utils import write_file, create_directory_if_not_exists
+from utils.mail_client import create_message, add_attachment, send_mail
+
+import os
 
 def get_environment():
     return dotenv_values()
@@ -40,10 +47,46 @@ def get_environment():
 if __name__ == "__main__":
     
     hl7_git_provider = providers.hl7_git_provider.Hl7FhirPRovider()
-    config = get_environment()
-    configure_logging(config["LOG_LEVEL"])
-
-    hl7_git_provider.update_hl7_resource("epi")
-    hl7_git_provider.update_hl7_resource("ips")
+    configure_logging(os.environ["LOG_LEVEL"])
     
+    epi_errors = hl7_git_provider.update_hl7_resource("epi", branch=os.environ["EPI_REPO_BRANCH"])
+    ips_errors = hl7_git_provider.update_hl7_resource("ips", branch=os.environ["IPS_REPO_BRANCH"])
+    
+    errors = {
+        "epi": epi_errors,
+        "ips": ips_errors
+    }
+    date_string = datetime.now().astimezone(timezone.utc).strftime("%d_%m_%Y-%H_%M")
+    full_date_string = datetime.now().astimezone(timezone.utc).strftime("%d/%m/%Y - %H:%M:%S %z")
+    file_name = f'fhir_connector_{date_string}-log.json'
+    file_folder = '/tmp/logs'
+    
+    file_path = f'{file_folder}/{file_name}'
+    create_directory_if_not_exists(file_folder)
+    write_file(file_path, json.dumps(errors))
+    
+    # Count how many errors there are
+    error_count = 0
+    for type in ["epi", "ips"]:
+        for resource_type in errors[type]:
+            error_count += len(errors[type][resource_type])
+            
+    
+    # Create email
+    subject = f"FOSPS: FHIR connector logs at {date_string}"
+    body = f"""Logs from fhir-connector. 
+    
+    - Date: {full_date_string}
+    
+    - Number of errors: {error_count}
+
+    You can find the errors here, or in the attached json file.
+    - Errors: {json.dumps(errors, indent=1)}
+    """
+    message = create_message(os.environ["EMAIL_SENDER"], os.environ["EMAIL_RECIPIENT"], subject, body)
+    message = add_attachment(message, file_path)
+    print("Sending email...")
+    # Send email
+    send_mail(message, os.environ["EMAIL_SMTP_SERVER"], os.environ["EMAIL_SENDER"], os.environ["EMAIL_PASSWORD"])
+    print('Email sent')
     exit()

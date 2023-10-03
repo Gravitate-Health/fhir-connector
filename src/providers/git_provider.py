@@ -8,10 +8,10 @@ class gitProvider:
         logger = logging.getLogger(__name__)
         self.logger = logger
     
-    def clone_git_repo(self, url, destination):
-        self.logger.debug(f"Cloning repo {url}...")
+    def clone_git_repo(self, url, destination, branch = 'master'):
+        self.logger.info(f"Cloning branch {branch} from repo {url}")
         try:
-            repo = git.Repo.clone_from(url, destination, branch='master')
+            repo = git.Repo.clone_from(url, destination, branch=branch)
             return repo
         except:
             pass

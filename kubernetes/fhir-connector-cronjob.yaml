@@ -15,9 +15,40 @@ spec:
           containers:
             - name: fhir-connector
               image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
-              envFrom:
-                - configMapRef:
-                    name: fhir-connector-config-map
+              env:
+                - name: EPI_REPO
+                  value: "https://github.com/hl7-eu/gravitate-health.git"
+                - name: EPI_REPO_BRANCH
+                  value: "master"
+                - name: IPS_REPO
+                  value: "https://github.com/hl7-eu/gravitate-health-ips.git"
+                - name: IPS_REPO_BRANCH
+                  value: "master"
+                - name: EPI_SERVER
+                  value: "https://fosps.gravitatehealth.eu/epi/api/fhir"
+                - name: IPS_SERVER
+                  value: "https://fosps.gravitatehealth.eu/ips/api/fhir"
+                - name: IPS_WHITELIST
+                  value: | 
+                    - "Bundle-gravitate-Alicia.json"
+                    - "Bundle-gravitate-Pedro.json"
+                - name: LOG_LEVEL
+                  value: INFO
+
+                  # Email settings
+                - name: EMAIL_ENABLED
+                  value: "true"
+                - name: EMAIL_SENDER
+                  value: "fosps-noreply@lst.tfo.upm.es"
+                - name: EMAIL_SMTP_SERVER
+                  value: "smtp.lst.tfo.upm.es"
+                - name: EMAIL_RECIPIENT
+                  value: "fosps-logs@lst.tfo.upm.es"
+                - name: EMAIL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: fhir-connector-email-password
+                      key: password
               imagePullPolicy: Always
           restartPolicy: OnFailure
   successfulJobsHistoryLimit: 3

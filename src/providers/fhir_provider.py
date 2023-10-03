@@ -40,4 +40,10 @@ class FhirProvider:
         resource_id = resource["id"]
         url = f"{url}/{resource_type}/{resource_id}"
         self.logger.info(f"Uploading {url} - {resource_type} with id {resource_id}")
-        self.http_client.put(url, resource)
+        try:
+            error = self.http_client.put(url, resource)
+            if(error):
+                return error
+        except:
+            pass
+            

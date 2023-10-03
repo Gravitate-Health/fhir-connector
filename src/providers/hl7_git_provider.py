@@ -56,9 +56,9 @@ class Hl7FhirPRovider:
             fhir_resources.append(self.read_fhir_resource_from_file(path))
         return fhir_resources
 
-    def get_resources_from_git_repository(self, config, whitelist=[]):
+    def get_resources_from_git_repository(self, config, whitelist=[], branch = "master"):
         self.git_provider.clone_git_repo(
-            config["repository"], config["paths"]["repository"]
+            config["repository"], config["paths"]["repository"], branch=branch
         )
         self.sushi_provider.execute_sushi(
             config["paths"]["repository"]
@@ -71,15 +71,22 @@ class Hl7FhirPRovider:
 
     def update_server_from_git_repo(self, fhir_config, resources_list, whitelist=[]):
         """Uploads a list of resources to a FHIR server"""
+        
+        errors_object = {}
         for order_list_type in fhir_config["orderList"]:
             for resource in resources_list:
                 resource_type = resource["resourceType"]
+                if (resource_type not in errors_object.keys()):
+                    errors_object[resource_type] = []
                 if resource_type != order_list_type:
                     continue  # Go to next resource as this is not the type we are looking for
 
-                self.fhir_provider.write_fhir_resource_to_server(
+                error = self.fhir_provider.write_fhir_resource_to_server(
                     resource, fhir_config["server"]
                 )
+                if(error):
+                    errors_object[resource_type].append(error)
+        return errors_object
 
     def read_fhir_server_config(self, type: str):
         if type == "epi":
@@ -88,7 +95,7 @@ class Hl7FhirPRovider:
             config = configs.hl7_ips.get_configuration()
         return config
 
-    def update_hl7_resource(self, type: str, withWhitelist: bool = False):
+    def update_hl7_resource(self, type: str, withWhitelist: bool = False, branch: str = "master"):
         """
         Downloads HL7 repository and updates resources to FHIR server.
         Steps:
@@ -113,7 +120,7 @@ class Hl7FhirPRovider:
                 withWhitelist = []
         else:
             whitelist = []
-        fhir_resources = self.get_resources_from_git_repository(config, whitelist)
+        fhir_resources = self.get_resources_from_git_repository(config, whitelist, branch=branch)
         sliced_resources = []
         for resource in fhir_resources:
             if resource["resourceType"] in ["Bundle"]:
@@ -122,7 +129,7 @@ class Hl7FhirPRovider:
                     sliced_resources.append(item)
             else:
                 sliced_resources.append(resource)
-        self.update_server_from_git_repo(config, sliced_resources)
+        errors = self.update_server_from_git_repo(config, sliced_resources)
 
-        return
+        return errors
     
