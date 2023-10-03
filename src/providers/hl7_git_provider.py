@@ -56,9 +56,9 @@ class Hl7FhirPRovider:
             fhir_resources.append(self.read_fhir_resource_from_file(path))
         return fhir_resources
 
-    def get_resources_from_git_repository(self, config, whitelist=[]):
+    def get_resources_from_git_repository(self, config, whitelist=[], branch = "master"):
         self.git_provider.clone_git_repo(
-            config["repository"], config["paths"]["repository"]
+            config["repository"], config["paths"]["repository"], branch=branch
         )
         self.sushi_provider.execute_sushi(
             config["paths"]["repository"]
@@ -95,7 +95,7 @@ class Hl7FhirPRovider:
             config = configs.hl7_ips.get_configuration()
         return config
 
-    def update_hl7_resource(self, type: str, withWhitelist: bool = False):
+    def update_hl7_resource(self, type: str, withWhitelist: bool = False, branch: str = "master"):
         """
         Downloads HL7 repository and updates resources to FHIR server.
         Steps:
@@ -120,7 +120,7 @@ class Hl7FhirPRovider:
                 withWhitelist = []
         else:
             whitelist = []
-        fhir_resources = self.get_resources_from_git_repository(config, whitelist)
+        fhir_resources = self.get_resources_from_git_repository(config, whitelist, branch=branch)
         sliced_resources = []
         for resource in fhir_resources:
             if resource["resourceType"] in ["Bundle"]:

@@ -36,6 +36,8 @@ from utils.mail_client import create_message, add_attachment, object_is_email_me
 from utils.fs_utils import write_file, create_directory_if_not_exists
 from utils.mail_client import create_message, add_attachment, send_mail
 
+import os
+
 def get_environment():
     return dotenv_values()
 
@@ -45,14 +47,10 @@ def get_environment():
 if __name__ == "__main__":
     
     hl7_git_provider = providers.hl7_git_provider.Hl7FhirPRovider()
-    environment = get_environment()
-    configure_logging(environment["LOG_LEVEL"])
+    configure_logging(os.environ["LOG_LEVEL"])
     
-    epi_errors = hl7_git_provider.update_hl7_resource("epi")
-    ips_errors = hl7_git_provider.update_hl7_resource("ips")
-    
-    if(not environment["EMAIL_ENABLED"]):
-        exit()
+    epi_errors = hl7_git_provider.update_hl7_resource("epi", branch=os.environ["EPI_REPO_BRANCH"])
+    ips_errors = hl7_git_provider.update_hl7_resource("ips", branch=os.environ["IPS_REPO_BRANCH"])
     
     errors = {
         "epi": epi_errors,
@@ -85,10 +83,10 @@ if __name__ == "__main__":
     You can find the errors here, or in the attached json file.
     - Errors: {json.dumps(errors, indent=1)}
     """
-    message = create_message(environment["EMAIL_SENDER"], environment["EMAIL_RECIPIENT"], subject, body)
+    message = create_message(os.environ["EMAIL_SENDER"], os.environ["EMAIL_RECIPIENT"], subject, body)
     message = add_attachment(message, file_path)
-    
+    print("Sending email...")
     # Send email
-    send_mail(message, environment["EMAIL_SMTP_SERVER"], environment["EMAIL_SENDER"], environment["EMAIL_PASSWORD"])
-    
+    send_mail(message, os.environ["EMAIL_SMTP_SERVER"], os.environ["EMAIL_SENDER"], os.environ["EMAIL_PASSWORD"])
+    print('Email sent')
     exit()
