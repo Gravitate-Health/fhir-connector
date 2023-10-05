@@ -33,6 +33,7 @@ class FhirProvider:
             except:
                 pass
             resources.append(resource)
+        resources.append(bundle) # This is because the bundle is not included in the entries
         return resources
 
     def write_fhir_resource_to_server(self, resource, url):
