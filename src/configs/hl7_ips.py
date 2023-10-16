@@ -15,6 +15,8 @@ IPS_ORDER_LIST = [
     "Condition",
     "Medication",
     "MedicationStatement",
+    "AllergyIntolerance",
+    "Immunization",
     "Composition",
 ]
 
