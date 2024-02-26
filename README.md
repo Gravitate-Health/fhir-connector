@@ -19,7 +19,7 @@ Table of contents
     - [Requirements](#requirements)
     - [Deployment](#deployment)
       - [Docker](#docker)
-      - [Kubernetes](#kubernetes)
+      - [Kubernetes (Kustomize)](#kubernetes-kustomize)
   - [Usage](#usage)
   - [Known issues and limitations](#known-issues-and-limitations)
   - [Getting help](#getting-help)
@@ -93,11 +93,16 @@ docker build . -t YOUR_IMAGE_NAME
 docker run YOUR_IMAGE_NAME
 ```
 
-#### Kubernetes
+#### Kubernetes (Kustomize)
 
+Production: 
 ```bash
-kubectl apply -f kubernetes/fhir-connector-configmap.yaml
-kubectl apply -f kubernetes/fhir-connector-cronjob.yaml
+kubectl apply -k kubernetes/base
+```
+
+Development: 
+```bash
+kubectl apply -k kubernetes/dev
 ```
 
 
