@@ -18,7 +18,6 @@
 # - https://github.com/hl7-eu/gravitate-health
 # - https://github.com/hl7-eu/gravitate-health-ips
 #################################################################
-from dotenv import dotenv_values
 import sys
 import logging
 import logging.config
@@ -38,19 +37,16 @@ from utils.mail_client import create_message, add_attachment, send_mail
 
 import os
 
-def get_environment():
-    return dotenv_values()
-
 
 # TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
 # TODO: Be able to set fixed ids to patient/IPS, to match them with the ones in keycloak.
 if __name__ == "__main__":
     
     hl7_git_provider = providers.hl7_git_provider.Hl7FhirPRovider()
-    configure_logging(os.environ["LOG_LEVEL"])
+    configure_logging(os.getenv("LOG_LEVEL"))
     
-    epi_errors = hl7_git_provider.update_hl7_resource("epi", branch=os.environ["EPI_REPO_BRANCH"])
-    ips_errors = hl7_git_provider.update_hl7_resource("ips", branch=os.environ["IPS_REPO_BRANCH"])
+    epi_errors = hl7_git_provider.update_hl7_resource("epi", branch=os.getenv("EPI_REPO_BRANCH"))
+    ips_errors = hl7_git_provider.update_hl7_resource("ips", branch=os.getenv("IPS_REPO_BRANCH"))
     
     errors = {
         "epi": epi_errors,
@@ -78,15 +74,21 @@ if __name__ == "__main__":
     
     - Date: {full_date_string}
     
+    - IPS server: {os.getenv("IPS_SERVER")}
+    - IPS branch: {os.getenv("IPS_REPO_BRANCH")}
+    - EPI server: {os.getenv("EPI_SERVER")}
+    - EPI branch: {os.getenv("EPI_REPO_BRANCH")}
+    
+    
     - Number of errors: {error_count}
 
     You can find the errors here, or in the attached json file.
     - Errors: {json.dumps(errors, indent=1)}
     """
-    message = create_message(os.environ["EMAIL_SENDER"], os.environ["EMAIL_RECIPIENT"], subject, body)
+    message = create_message(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_RECIPIENT"), subject, body)
     message = add_attachment(message, file_path)
     print("Sending email...")
     # Send email
-    send_mail(message, os.environ["EMAIL_SMTP_SERVER"], os.environ["EMAIL_SENDER"], os.environ["EMAIL_PASSWORD"])
+    send_mail(message, os.getenv("EMAIL_SMTP_SERVER"), os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD"))
     print('Email sent')
     exit()
