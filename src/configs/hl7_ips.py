@@ -1,13 +1,11 @@
 # Load variables from .env file
-from dotenv import dotenv_values
-
-config = dotenv_values()
+import os
 
 TMP_FOLDER = "/tmp/repos"
 
-IPS_REPO = config["IPS_REPO"]
-IPS_SERVER = config["IPS_SERVER"]
-IPS_WHITELIST = config["IPS_WHITELIST"]
+IPS_REPO = os.getenv("IPS_REPO")
+IPS_SERVER = os.getenv("IPS_SERVER")
+IPS_WHITELIST = os.getenv("IPS_WHITELIST")
 
 IPS_ORDER_LIST = [
     "Patient",

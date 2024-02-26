@@ -1,12 +1,10 @@
 # Load variables from .env file
-from dotenv import dotenv_values
-
-config = dotenv_values()
+import os
 
 TMP_FOLDER = "/tmp/repos"
 
-EPI_REPO = config["EPI_REPO"]
-EPI_SERVER = config["EPI_SERVER"]
+EPI_REPO = os.getenv("EPI_REPO")
+EPI_SERVER = os.getenv("EPI_SERVER")
 
 EPI_ORDER_LIST = [
     "Binary",
