@@ -47,4 +47,17 @@ class FhirProvider:
                 return error
         except:
             pass
+    
+    def get_fhir_all_resource_type_from_server(self, url, resource_type):
+        url = f"{url}/{resource_type}"
+        self.logger.info(f"Getting {url}...")
+        try:
+            response = self.http_client.get(url)
+            if(response):
+                return response
+        except:
+            pass
+        
+        
+        
             

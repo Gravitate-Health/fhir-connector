@@ -3,8 +3,8 @@ import os
 
 TMP_FOLDER = "/tmp/repos"
 
-IPS_REPO = os.getenv("IPS_REPO")
-IPS_SERVER = os.getenv("IPS_SERVER")
+IPS_REPO = os.getenv("MODE_GIT_FSH_SOURCE_REPO")
+IPS_SERVER = os.getenv("DESTINATION_SERVER")
 IPS_WHITELIST = os.getenv("IPS_WHITELIST")
 
 IPS_ORDER_LIST = [

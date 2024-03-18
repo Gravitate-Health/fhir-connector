@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
 - ../base
 patches:
-- path: fhir-connector-cronjob.yaml
+- path: fhir-connector-git-epi-cronjob.yaml
+- path: fhir-connector-git-ips-cronjob.yaml

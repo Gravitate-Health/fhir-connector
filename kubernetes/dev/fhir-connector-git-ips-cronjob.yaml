@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fhir-connector-git-ips
+spec:
+  schedule: "0 2 * * *"
+  suspend: false
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: fhir-connector-git-ips
+            env:
+            - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
+              value: "master"
+            - name: DESTINATION_SERVER
+              value: "https://gravitate-health.lst.tfo.upm.es/ips/api/fhir"
+  successfulJobsHistoryLimit: 6
+  failedJobsHistoryLimit: 4

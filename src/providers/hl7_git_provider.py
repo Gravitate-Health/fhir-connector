@@ -33,6 +33,9 @@ import logging
 import configs.hl7_epi
 import configs.hl7_ips
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Hl7FhirPRovider:
     logger = logging.getLogger(__name__)
@@ -57,8 +60,9 @@ class Hl7FhirPRovider:
         return fhir_resources
 
     def get_resources_from_git_repository(self, config, whitelist=[], branch = "master"):
+        repo_url = config["paths"]["repository"]
         self.git_provider.clone_git_repo(
-            config["repository"], config["paths"]["repository"], branch=branch
+            config["repository"], repo_url, branch=branch
         )
         self.sushi_provider.execute_sushi(
             config["paths"]["repository"]
@@ -95,7 +99,7 @@ class Hl7FhirPRovider:
             config = configs.hl7_ips.get_configuration()
         return config
 
-    def update_hl7_resource(self, type: str, withWhitelist: bool = False, branch: str = "master"):
+    def update_hl7_resource(self, withWhitelist: bool = False, branch: str = "master"):
         """
         Downloads HL7 repository and updates resources to FHIR server.
         Steps:
@@ -105,17 +109,27 @@ class Hl7FhirPRovider:
             4. Uploads separated resources
         """
         
+        """
         if (type != "epi" and type != "ips"):
-            self.logger.error(f"Invalid FSH type: {type}")
-            return
+        self.logger.error(f"Invalid FSH type: {type}")
+        return 
+        """
         
-        self.logger.info(f"Updating {type} reosurces...")
-        config = self.read_fhir_server_config(type)
         
+        # TODO: remove this hardcoded urls
+        if(os.getenv("MODE_GIT_FSH_SOURCE_REPO") == "https://github.com/hl7-eu/gravitate-health-ips.git"):
+            self.logger.info(f"Updating IPS git resources...")
+            config = self.read_fhir_server_config("ips")
+        elif(os.getenv("MODE_GIT_FSH_SOURCE_REPO") == "https://github.com/hl7-eu/gravitate-health.git"):
+            self.logger.info(f"Updating ePI git resources...")
+            config = self.read_fhir_server_config("epi")
+        
+            
         whitelist = []
         if(withWhitelist):
             try:
                 withWhitelist = config["whiteList"]
+                print(withWhitelist)
             except:
                 withWhitelist = []
         else:

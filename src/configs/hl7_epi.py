@@ -1,10 +1,14 @@
 # Load variables from .env file
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 TMP_FOLDER = "/tmp/repos"
 
-EPI_REPO = os.getenv("EPI_REPO")
-EPI_SERVER = os.getenv("EPI_SERVER")
+EPI_REPO = os.getenv("MODE_GIT_FSH_SOURCE_REPO")
+EPI_SERVER = os.getenv("DESTINATION_SERVER")
 
 EPI_ORDER_LIST = [
     "Binary",
