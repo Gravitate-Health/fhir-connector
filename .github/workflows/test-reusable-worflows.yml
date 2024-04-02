@@ -6,3 +6,4 @@ on:
 jobs:
     call-GH-workflow:
       uses: Gravitate-Health/reusable-workflows/.github/workflows/main.yml@main
+      secrets: inherit
