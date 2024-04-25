@@ -48,12 +48,17 @@ class FhirProvider:
         except:
             pass
     
-    def get_fhir_all_resource_type_from_server(self, url, resource_type):
+    def get_fhir_all_resource_type_from_server(self, url, resource_type, all_entries = []):
         url = f"{url}/{resource_type}"
         self.logger.info(f"Getting {url}...")
         try:
             response = self.http_client.get(url)
             if(response):
-                return response["entry"]
+                all_entries.extend(response["entry"])  # Append the entries to the accumulated list
+                if(response["link"]):
+                    if(response["link"][1]["relation"] == "next"):
+                        return self.get_fhir_all_resource_type_from_server(response["link"][1]["url"], resource_type, all_entries)  # Return the recursive call
         except:
             pass
+        print(len(all_entries))  # Use len() instead of __len__()
+        return all_entries

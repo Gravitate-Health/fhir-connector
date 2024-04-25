@@ -145,5 +145,5 @@ class Hl7FhirPRovider:
                 sliced_resources.append(resource)
         errors = self.update_server_from_git_repo(config, sliced_resources)
 
-        return errors
+        return fhir_resources, errors
     

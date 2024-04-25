@@ -77,14 +77,21 @@ if __name__ == "__main__":
     logger.info("Running connector...")
     logger.info("  Date: " + datetime.now().astimezone(timezone.utc).strftime("%d/%m/%Y - %H:%M:%S %z"))
     logger.info("  MODE: " + MODE)
+    logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
 
     # Working mode: GIT_FSH
+    resources = []
     if MODE == Connector_Modes.GIT_FSH:
-        git_fsh.connector_git_fsh(mail_client)
+        logger.info("  MODE_GIT_FSH_SOURCE_REPO: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO"))
+        logger.info("  MODE_GIT_FSH_SOURCE_REPO_BRANCH: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO_BRANCH"))
+        resources = git_fsh.connector_git_fsh(mail_client)
 
     # Working mode: HAPI_FHIR_SERVER_SYNC
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_SYNC:
-        fhir_server_sync.connector_fhir_server_sync(mail_client)
+        logger.info("  MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER: " + os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER"))
+        logger.info("  MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES: " + ''.join(os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES").strip("][").split(", ")))
+        
+        resources = fhir_server_sync.connector_fhir_server_sync(mail_client)
 
     # Working mode: HAPI_FHIR_SERVER_SYNC
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_PROXY:
