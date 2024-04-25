@@ -1,0 +1,38 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG_DEV }}
+
+      #- name: Check for changes in YAML files
+      #  run: |
+      #    # Script to detect changes in YAML files
+      #    # Example: kubectl apply --dry-run=client -o yaml -f <path-to-yaml>
+      #    kubectl apply --validate=false --dry-run=client -o yaml -k kubernetes/dev
+
+      #- name: Apply Kubernetes manifests
+      #  run: |
+      #    # Apply YAML files if changes detected
+      #    # Example: kubectl apply -f path/to/your/manifests
+
+      - name: Restart Deployment
+        run: |
+            echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
+            export KUBECONFIG=$(pwd)/kubeconfig
+            echo " Restarting deployment ${{ github.event.repository.name }} in development environment"
+            kubectl rollout restart deployment ${{ github.event.repository.name }}

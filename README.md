@@ -62,7 +62,7 @@ The following environment variables must be set:
 
 | Task          	    | Description                                                 	| Possible values                       	          |
 |---------------    	|-------------------------------------------------------------	|---------------------------------------	          |
-| CONNECTOR_MODE     	| Working mode of the connector                               	| GIT_FSH, FHIR_SERVER_SYNC, FHIR_SERVER_PROXY 	    |
+| CONNECTOR_MODE     	| Working mode of the connector                               	| GIT_FSH, HAPI_FHIR_SERVER_SYNC, FHIR_SERVER_PROXY 	    |
 | WHITELIST         	| List of resources to get, if not all should be retrieved     	| ["resource1.json", "resource2.json"]   	          |
 | DESTINATION_SERVER  | https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	          |
 | LOG_LEVEL         	| INFO                                                        	| CRITICAL, ERROR, WARNING, INFO, DEBUG  	          |
@@ -92,14 +92,14 @@ data:
 | MODE_GIT_FSH_SOURCE_REPO_BRANCH    | Branch to pull                                             	| "main", "development", etc.            	          |
 
 
-### Environment variables for working mode: FHIR_SERVER_SYNC
+### Environment variables for working mode: HAPI_FHIR_SERVER_SYNC
 
 
 | Task          	                    | Description                                                 	| Possible values                       	          |
 |----------------------------         |-------------------------------------------------------------	|---------------------------------------	          |
-| CONNECTOR_MODE 	                    | Working mode of the connector                               	| FHIR_SERVER_SYNC                            	    |
-| MODE_FHIR_SERVER_SYNC_SOURCE_SERVER | URL of the FHIR server                                       	|                 	                                |
-| MODE_FHIR_SERVER_SYNC_RESOURCES     | ["Bundle", "Patient", "Observation", etc.]                   	|                                       	          |
+| CONNECTOR_MODE 	                    | Working mode of the connector                               	| HAPI_FHIR_SERVER_SYNC                            	    |
+| MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER | URL of the FHIR server                                       	|                 	                                |
+| MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES     | ["Bundle", "Patient", "Observation", etc.]                   	|                                       	          |
 
 
 ### Environment variables for working mode: FHIR_SERVER_PROXY
@@ -107,7 +107,7 @@ data:
 
 | Task          	            | Description                                                 	| Possible values                       	          |
 |---------------------------- |-------------------------------------------------------------	|---------------------------------------	          |
-| CONNECTOR_MODE 	            | Working mode of the connector                               	| GIT_FSH, FHIR_SERVER_SYNC, FHIR_SERVER_PROXY 	    |
+| CONNECTOR_MODE 	            | Working mode of the connector                               	| GIT_FSH, HAPI_FHIR_SERVER_SYNC, FHIR_SERVER_PROXY 	    |
 | SOURCE_SERVER_LIST          | ["https://fhir-server1.com", "https://fhir-server2.com"]     	|                                       	          |
 | DESTINATION_SERVER        	| https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	          |
 

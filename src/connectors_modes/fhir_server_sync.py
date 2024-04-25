@@ -8,7 +8,8 @@ def connector_fhir_server_sync(mail_client: utils.mail_client.Mail_client):
     MODE_FHIR_SERVER_SYNC_SOURCE_SERVER = os.getenv(
         "MODE_FHIR_SERVER_SYNC_SOURCE_SERVER"
     )
-    MODE_FHIR_SERVER_SYNC_RESOURCES = os.getenv("MODE_FHIR_SERVER_SYNC_RESOURCES")
+    MODE_FHIR_SERVER_SYNC_RESOURCES = os.getenv("MODE_FHIR_SERVER_SYNC_RESOURCES").strip("][").split(", ")
+    DESTINATION_SERVER = os.getenv("DESTINATION_SERVER")
 
     fhir_provider = providers.fhir_provider.FhirProvider()
 
@@ -16,11 +17,13 @@ def connector_fhir_server_sync(mail_client: utils.mail_client.Mail_client):
         resources = fhir_provider.get_fhir_all_resource_type_from_server(
             MODE_FHIR_SERVER_SYNC_SOURCE_SERVER, resource_type
         )
-        for resource in resources:
-            fhir_provider.write_fhir_resource_to_server(
-                resource,
-            )
-
+        if(resources != None):
+            for resource in resources:
+                fhir_provider.write_fhir_resource_to_server(
+                    resource["resource"], DESTINATION_SERVER
+                )
+        else:
+            print("No resources found")
         errors = {}
 
     mail_client.create_message(errors)

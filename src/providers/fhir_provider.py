@@ -54,10 +54,6 @@ class FhirProvider:
         try:
             response = self.http_client.get(url)
             if(response):
-                return response
+                return response["entry"]
         except:
             pass
-        
-        
-        
-            
