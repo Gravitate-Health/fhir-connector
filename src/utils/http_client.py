@@ -37,39 +37,61 @@ class HttpClient:
         response = self.http_session.get(url, timeout=self.timeout)
         return response.json()
 
-    def put(self, url, body) -> None:
+    def put(self, url, body):
+        errors = []
         try:
             response = requests.put(url, json=body)
         except Exception as error:
             self.logger.error(error)
             self.logger.error(
-                f"[HTTP ERROR] Error loading {body['resourceType']} with id {body['id']} to: {url}"
+                f"[HTTP ERROR] Error in PUT {body['resourceType']} with id {body['id']} to: {url}"
             )
             return
-
         if response.status_code not in [200, 201]:
-            issue_list = response.json()["issue"]
-            for issue in issue_list:
-                resource_id = body["id"]
-                resource_type = body["resourceType"]
-                issue_severity = issue["severity"].upper()
-                issue_diagnostic = issue["diagnostics"]
-                self.logger.warning(
-                    f"{issue_severity}: {resource_type} with id {resource_id} || Status_code {response.status_code} || Reason: {issue_diagnostic}"
-                )
+            self.logger.error(f"Unsuccessful PUT request for {body["resourceType"]}" )
+            errors = self.parse_issues(body, response)
+        return errors
 
-                error_object = {
-                    "operation": "http_put",
-                    "date": datetime.now()
-                    .astimezone(timezone.utc)
-                    .strftime("%d/%m/%Y - %H:%M:%S %z"),
-                    "status_code": response.status_code,
-                    "severity": issue_severity,
-                    "fhir_error": {
-                        "resource_id": resource_id,
-                        "resource_type": resource_type,
-                        "diagnostic": issue_diagnostic,
-                    },
-                }
-                return error_object
-        return
+    def post(self, url, body):
+        errors = []
+        try:
+            response = requests.post(url, json=body)
+        except Exception as error:
+            self.logger.error(error)
+            self.logger.error(
+                f"[HTTP ERROR] Error in POST {body['resourceType']} with id {body['id']} to: {url}"
+            )
+            return
+        if response.status_code not in [200, 201]:
+            self.logger.error(f"Unsuccessful POST request for {body["resourceType"]}" )
+            errors = self.parse_issues(body, response)
+        return errors
+
+    def parse_issues(self, resource, response):
+        errors = []
+        status_code = response.status_code
+        issue_list = response.json()["issue"]
+        for issue in issue_list:
+            resource_id = resource["id"]
+            resource_type = resource["resourceType"]
+            issue_severity = issue["severity"].upper()
+            issue_diagnostic = issue["diagnostics"]
+            self.logger.warning(
+                f"{issue_severity}: {resource_type} with id {resource_id} || Status_code {status_code} || Reason: {issue_diagnostic}"
+            )
+
+            error_object = {
+                "operation": "http_put",
+                "date": datetime.now()
+                .astimezone(timezone.utc)
+                .strftime("%d/%m/%Y - %H:%M:%S %z"),
+                "status_code": response.status_code,
+                "severity": issue_severity,
+                "fhir_error": {
+                    "resource_id": resource_id,
+                    "resource_type": resource_type,
+                    "diagnostic": issue_diagnostic,
+                },
+            }
+            errors.append(error_object)
+        return errors
