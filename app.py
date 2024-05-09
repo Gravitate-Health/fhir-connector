@@ -36,7 +36,7 @@ import os
 """ from connectors_modes import git_fsh
 from connectors_modes import fhir_server_sync """
 
-from connectors_modes import git_fsh, fhir_server_sync
+from connectors_modes import git_fsh, fhir_server_sync, delete_resources
 from datetime import datetime, timezone
 
 """
@@ -62,6 +62,7 @@ class Connector_Modes(enumerate):
     HAPI_FHIR_SERVER_PROXY = "HAPI_FHIR_SERVER_PROXY"
     HAPI_FHIR_SERVER_SYNC = "HAPI_FHIR_SERVER_SYNC"
     GIT_FSH = "GIT_FSH"
+    DELETE_RESOURCES = "DELETE_RESOURCES"
 
 
 # TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
@@ -80,22 +81,25 @@ if __name__ == "__main__":
     logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
 
     # Working mode: GIT_FSH
-    resources = []
+    resources, errors = []
     if MODE == Connector_Modes.GIT_FSH:
         logger.info("  MODE_GIT_FSH_SOURCE_REPO: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO"))
         logger.info("  MODE_GIT_FSH_SOURCE_REPO_BRANCH: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO_BRANCH"))
-        resources = git_fsh.connector_git_fsh(mail_client)
+        resources, errors = git_fsh.connector_git_fsh(mail_client)
 
     # Working mode: HAPI_FHIR_SERVER_SYNC
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_SYNC:
         logger.info("  MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER: " + os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER"))
         logger.info("  MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES: " + ''.join(os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES").strip("][").split(", ")))
         
-        resources = fhir_server_sync.connector_fhir_server_sync(mail_client)
+        resources, errors = fhir_server_sync.connector_fhir_server_sync(mail_client)
 
     # Working mode: HAPI_FHIR_SERVER_SYNC
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_PROXY:
         logger.error("Connector working mode not implemented: " + MODE)
+    
+    elif MODE == Connector_Modes.DELETE_RESOURCES:
+        delete_resources.connector_delete_resources(mail_client)
 
     # Working mode: other
     else:

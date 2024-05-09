@@ -16,4 +16,4 @@ def connector_git_fsh(mail_client: utils.mail_client.Mail_client):
 
     mail_client.create_message(errors)
     print("Email sent")
-    return fhir_resources
+    return fhir_resources, errors

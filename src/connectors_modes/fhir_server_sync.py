@@ -15,19 +15,20 @@ def connector_fhir_server_sync(mail_client: utils.mail_client.Mail_client):
 
     fhir_provider = providers.fhir_provider.FhirProvider()
 
-    errors = {}
+    errors = []
     for resource_type in MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES:
         resources = fhir_provider.get_fhir_all_resource_type_from_server(
             MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER, resource_type, limit=LIMIT
         )
         if(resources != None):
             for resource in resources:
-                errors = fhir_provider.write_fhir_resource_to_server(
+                error = fhir_provider.write_fhir_resource_to_server(
                     resource["resource"], DESTINATION_SERVER
                 )
+                errors.append(error)
         else:
             print("No resources found")
 
     mail_client.create_message(errors)
     print("Email sent")
-    return resources
+    return resources, errors

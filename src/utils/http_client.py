@@ -67,6 +67,19 @@ class HttpClient:
             errors = self.parse_issues(body, response)
         return errors
 
+    def delete(self, url):
+        errors = []
+        try:
+            response = requests.delete(url)
+        except Exception as error:
+            self.logger.error(error)
+            self.logger.error(f"[HTTP ERROR] Error in DELETE to: {url}")
+            return
+        if response.status_code not in [200, 201]:
+            self.logger.error(f"Unsuccessful DELETE request for {url}" )
+            errors = self.parse_issues(url, response)
+        return errors
+
     def parse_issues(self, resource, response):
         errors = []
         status_code = response.status_code
