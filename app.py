@@ -81,7 +81,8 @@ if __name__ == "__main__":
     logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
 
     # Working mode: GIT_FSH
-    resources, errors = []
+    resources = []
+    errors = []
     if MODE == Connector_Modes.GIT_FSH:
         logger.info("  MODE_GIT_FSH_SOURCE_REPO: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO"))
         logger.info("  MODE_GIT_FSH_SOURCE_REPO_BRANCH: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO_BRANCH"))
