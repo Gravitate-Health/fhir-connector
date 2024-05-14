@@ -48,7 +48,7 @@ class HttpClient:
             )
             return
         if response.status_code not in [200, 201]:
-            self.logger.error(f"Unsuccessful PUT request for {body["resourceType"]}" )
+            self.logger.error(f"Unsuccessful PUT request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
         return errors
 
@@ -63,7 +63,7 @@ class HttpClient:
             )
             return
         if response.status_code not in [200, 201]:
-            self.logger.error(f"Unsuccessful POST request for {body["resourceType"]}" )
+            self.logger.error(f"Unsuccessful POST request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
         return errors
 

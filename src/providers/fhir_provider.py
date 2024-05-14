@@ -3,14 +3,14 @@ import os
 from utils.http_client import HttpClient
 import logging
 
-DESTINATION_SERVER = os.getenv("DESTINATION_SERVER")
-
 class FhirProvider:
-    def __init__(self) -> None:
+    def __init__(self, server_url) -> None:
         logging.getLogger("requests").setLevel(logging.INFO)
         logging.getLogger("urllib3").setLevel(logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.http_client = HttpClient()
+        
+        self.server_url = server_url
 
     def separate_bundle_into_resources(self, bundle) -> list:
         """separate_bundle_into_resources
@@ -39,9 +39,10 @@ class FhirProvider:
         resources.append(bundle) # This is because the bundle is not included in the entries
         return resources
 
-    def write_fhir_resource_to_server(self, resource, url, method = "PUT"):
+    def write_fhir_resource_to_server(self, resource, source_server = "", method = "PUT"):
         self.logger.info("------------- New resource to write to server -------------")
-        resource_type = resource["resourceType"]        
+        resource_type = resource["resourceType"]
+        url = self.server_url
         self.logger.debug(f"Trying to write {resource_type} to {url}")
         
         errors = []
@@ -62,15 +63,16 @@ class FhirProvider:
             else:
                 # Generate provenance for the resource
                 if(resource_type in ["Bundle", "DocumentReference", "Library"]):
-                    provenance = self.generate_provenance(resource, DESTINATION_SERVER)
-                    errors.append(self.write_fhir_resource_to_server(provenance, DESTINATION_SERVER, "POST"))
+                    provenance = self.generate_provenance(resource, source_server)
+                    errors.append(self.write_fhir_resource_to_server(provenance, self.server_url, "POST"))
         except:
             pass
         return errors
         
     
-    def get_fhir_all_resource_type_from_server(self, url, resource_type, all_entries = [], limit = 100000):
-        url = f"{url}/{resource_type}"
+    def get_fhir_all_resource_type_from_server(self, resource_type, url = "",all_entries = [], limit = 100000):
+        if url == "":
+            url = f"{self.server_url}/{resource_type}"
         self.logger.info(f"Getting {url}...")
         try:
             response = self.http_client.get(url)
@@ -90,27 +92,39 @@ class FhirProvider:
         self.logger.info(f"Got a total of {len(all_entries)} entries from FHIR server")  # Use len() instead of __len__()
         return all_entries
 
-    def delete_fhir_resource_from_server(self, resource, url):
+    def delete_fhir_resource_from_server(self, resource):
+        url = self.server_url
         self.logger.info(f"Deleting {resource['resourceType']} with id {resource['id']} from {url}")
         location = f"{url}/{resource['resourceType']}/{resource['id']}"
         try:
-            print(location)
             response = self.http_client.delete(location)
         except:
             self.logger.error(f"Error deleting resource from server: {location}")
             pass
         return response
 
-    def generate_provenance(self, resource, source_server):
+    def generate_provenance(self, resource, source_server = ""):
         self.logger.info(f"Generating provenance for {resource['resourceType']} with id {resource['id']}")
+        try:
+            resource_id = resource["id"]
+        except:
+            self.logger.warning(f"Resource {resource['resourceType']} does not have an id")
+            resource_id = None
         provenance = {
             "resourceType": "Provenance",
             "target": [
                 {
-                    "reference": f"{source_server}/{resource['resourceType']}/{resource['id']}"
+                    "reference": f"{self.server_url}/{resource['resourceType']}/{resource['id']}"
                 }
             ],
             "recorded": datetime.now(timezone.utc).isoformat(),
+            "activity": {
+                "coding" : [{
+                "system" : "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir",
+                "code" : "access",
+                "display" : "Access/View Record Lifecycle Event"
+                }]
+            },
             "agent": [
                 {
                     "type": {
@@ -128,12 +142,18 @@ class FhirProvider:
                         "reference": "Organization/1"
                     }
                 }
-            ]
+            ],
+            "entity" : [{
+                "role" : "source",
+                "what" : {
+                "reference" : f"{source_server}/{resource['resourceType']}/{resource_id}"
+                }
+            }]
         }
-        #print(provenance)
         return provenance
     
-    def delete_all_resource_type_from_server(self, url, resource_type):
+    def delete_all_resource_type_from_server(self, resource_type):
+        url = self.server_url
         self.logger.info(f"Deleting all {resource_type} from {url}")
         
         entries = self.get_fhir_all_resource_type_from_server(url, resource_type)
