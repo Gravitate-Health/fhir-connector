@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fhir-connector-fhir-sync-hl7
+spec:
+  schedule: "0 2 * * *"
+  suspend: false
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: fhir-connector-fhir-sync-hl7
+            env:
+            - name: DESTINATION_SERVER
+              value: "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir"
+  successfulJobsHistoryLimit: 6
+  failedJobsHistoryLimit: 4
