@@ -17,7 +17,7 @@
     - [GIT\_FSH HL7 IPS resources](#git_fsh-hl7-ips-resources)
   - [Environment variables](#environment-variables)
     - [Environment variables for working mode: GIT\_FSH](#environment-variables-for-working-mode-git_fsh)
-    - [Environment variables for working mode: FHIR\_SERVER\_SYNC](#environment-variables-for-working-mode-fhir_server_sync)
+    - [Environment variables for working mode: HAPI\_FHIR\_SERVER\_SYNC](#environment-variables-for-working-mode-hapi_fhir_server_sync)
     - [Environment variables for working mode: FHIR\_SERVER\_PROXY](#environment-variables-for-working-mode-fhir_server_proxy)
   - [Deployment](#deployment)
     - [Local deployment](#local-deployment)
@@ -35,7 +35,7 @@
 
 ## Introduction
 
-This reporistory includes an implementation for a tool capable of transforming information from different sources into FHIR format. The connector has different working modes, and the desired one must be specified. The following workin modes are currently available:
+This repository includes an implementation for a tool capable of transforming information from different sources into FHIR format. The connector has different working modes, and the desired one must be specified. The following working modes are currently available:
 - fhs-git: pulls a git repository containing .fsh files, converts them to JSON format and uploads them to the specified HAPI FHIR server.
 - HAPI FHIR sync: pulls resources from a HAPI FHIR server and writes them to the specified FHIR server.
 - HAPI FHIR proxy: the connector acts as a proxy for FHIR resources. When a resource is requested to the connector, it will look for the resource in all the FHIR sources it has available.
@@ -64,11 +64,11 @@ The following environment variables must be set:
 |---------------    	|-------------------------------------------------------------	|---------------------------------------	          |
 | CONNECTOR_MODE     	| Working mode of the connector                               	| GIT_FSH, HAPI_FHIR_SERVER_SYNC, FHIR_SERVER_PROXY 	    |
 | WHITELIST         	| List of resources to get, if not all should be retrieved     	| ["resource1.json", "resource2.json"]   	          |
-| DESTINATION_SERVER  | https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	          |
-| LOG_LEVEL         	| INFO                                                        	| CRITICAL, ERROR, WARNING, INFO, DEBUG  	          |
+| DESTINATION_SERVER  | URL of the destination FHIR server                          	|                                       	          |
+| LOG_LEVEL         	| Log level                                                    	| CRITICAL, ERROR, WARNING, INFO, DEBUG  	          |
 | EMAIL_ENABLED       | Enable sending of emails with the results of the connector   	| true                                              |
 | EMAIL_SENDER        | Email address of the sender                                 	|                                        	          |
-| EMAIL_PASSWORD      | Must be set as a bsae64 encoded secret                       	|                                        	          |
+| EMAIL_PASSWORD      | Must be set as a base64 encoded secret                       	|                                        	          |
 | EMAIL_SMTP_SERVER   | SMTP server address                                         	|                                        	          |
 | EMAIL_RECIPIENT     | Email address or list to send the contents                  	|                                        	          |
 
@@ -94,7 +94,6 @@ data:
 
 ### Environment variables for working mode: HAPI_FHIR_SERVER_SYNC
 
-
 | Task          	                    | Description                                                 	| Possible values                       	          |
 |----------------------------         |-------------------------------------------------------------	|---------------------------------------	          |
 | CONNECTOR_MODE 	                    | Working mode of the connector                               	| HAPI_FHIR_SERVER_SYNC                            	    |
@@ -103,7 +102,6 @@ data:
 
 
 ### Environment variables for working mode: FHIR_SERVER_PROXY
-
 
 | Task          	            | Description                                                 	| Possible values                       	          |
 |---------------------------- |-------------------------------------------------------------	|---------------------------------------	          |
