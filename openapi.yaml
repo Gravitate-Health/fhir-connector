@@ -13,7 +13,7 @@ paths:
       summary: "server-transaction: Execute a FHIR Transaction (or FHIR Batch) Bundle"
       tags:
         - ePI
-      description: Search Bundle ePI with a FHIR query.
+      description: Search Bundle ePI with a FHIR query. More information about FHIR transactions in https://www.hl7.org/fhir/http.html#transaction
       requestBody:
         content:
           application/json:
