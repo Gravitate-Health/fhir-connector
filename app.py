@@ -36,7 +36,7 @@ import os
 """ from connectors_modes import git_fsh
 from connectors_modes import fhir_server_sync """
 
-from connectors_modes import git_fsh, fhir_server_sync, delete_resources
+from connectors_modes import git_fsh, fhir_server_sync, delete_resources, fhir_server_proxy
 from datetime import datetime, timezone
 
 """
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     logger.info("Running connector...")
     logger.info("  Date: " + datetime.now().astimezone(timezone.utc).strftime("%d/%m/%Y - %H:%M:%S %z"))
     logger.info("  MODE: " + MODE)
-    logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
+    
 
     # Working mode: GIT_FSH
     resources = []
@@ -86,28 +86,32 @@ if __name__ == "__main__":
     if MODE == Connector_Modes.GIT_FSH:
         logger.info("  MODE_GIT_FSH_SOURCE_REPO: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO"))
         logger.info("  MODE_GIT_FSH_SOURCE_REPO_BRANCH: " + os.getenv("MODE_GIT_FSH_SOURCE_REPO_BRANCH"))
+        logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
         resources, errors = git_fsh.connector_git_fsh(mail_client)
 
     # Working mode: HAPI_FHIR_SERVER_SYNC
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_SYNC:
         logger.info("  MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER: " + os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER"))
         logger.info("  MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES: " + ''.join(os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES").strip("][").split(", ")))
+        logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
         
         resources, errors = fhir_server_sync.connector_fhir_server_sync(mail_client)
 
     # Working mode: HAPI_FHIR_SERVER_SYNC
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_PROXY:
-        logger.error("Connector working mode not implemented: " + MODE)
+        fhir_server_proxy.run()
     
     elif MODE == Connector_Modes.DELETE_RESOURCES:
+        logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
         delete_resources.connector_delete_resources(mail_client)
-
     # Working mode: other
     else:
         logger.error("Connector working mode not implemented: " + MODE)
 
     print("Sending email...")
     # Send email
-    mail_client.send_mail()
-
+    try:
+        mail_client.send_mail()
+    except Exception as e:
+        pass
     exit()

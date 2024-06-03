@@ -29,51 +29,39 @@ paths:
           
       responses:
         "200":
-          $ref: "#/components/responses/200ok"
+          description: "OK"
+  /connector/api/connectors/list:
+    get:
+      summary: "Get list of available connectors in FOSPS"
+      tags:
+        - Connector
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["IPS", "EPI", "FHIR_SYNC"]
         "400":
           $ref: "#/components/responses/400BadRequest"
         "404":
           $ref: "#/components/responses/404NotFound"
+  /connector/api/connectors/{connectorName}/run:
+    post:
+      summary: "Run connector on demand"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+  
 components:
-  schemas:
-    FHIR-JSON-RESOURCE:
-      type: object
-  parameters:
-    epiIdentifier:
-      in: path
-      name: epiIdentifier
-      description: identifier of the ePI to retrieve.
-      required: true
-      schema:
-        type: string
-    patientIdentifier:
-      in: path
-      name: patientIdentifier
-      description: patient identifier for the IPS.
-      required: true
-      schema:
-        type: string
-    RMMIdentifier:
-      in: path
-      name: RMMIdentifier
-      description: RMM identifier to retrieve.
-      required: true
-      schema:
-        type: string
-    lensIdentifier:
-      in: path
-      name: lensIdentifier
-      description: lens identifier to retrieve.
-      required: true
-      schema:
-        type: string
   responses:
-    200ok:
-      description: OK
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/FHIR-JSON-RESOURCE"
     422InvalidData:
       description: Invalid Data
     400BadRequest:
