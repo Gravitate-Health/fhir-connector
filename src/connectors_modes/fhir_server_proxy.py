@@ -11,9 +11,9 @@ app = Flask(__name__)
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
 
-if (ENVIRONMENT == "local"):
+try:
     config.load_kube_config(context='microk8s@GH-Development')
-else:
+except:
     config.load_incluster_config()
     
 
@@ -23,7 +23,7 @@ namespace = "default"
 print("LOADED CONFIG")
 def run():
     
-    app.run()
+    app.run(host='0.0.0.0')
 
 @app.route('/connectors/list', methods=['GET'])
 def list_connectors():
@@ -63,6 +63,8 @@ def run_connector(connector_name: str):
                         spec=copy.deepcopy(cronjob.spec.job_template.spec)
                     )
                     print("Creating job with name: " + job_name)
+                    print("Manifest :")
+                    print(job_manifest)
                     job = batch_v1.create_namespaced_job(namespace=namespace, body=job_manifest)
                     print(f"Job {job.metadata.name} created to trigger CronJob {job_name} immediately.")
 

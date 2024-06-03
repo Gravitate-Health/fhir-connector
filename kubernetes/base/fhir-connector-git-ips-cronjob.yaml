@@ -18,6 +18,8 @@ spec:
           - name: fhir-connector-git-ips
             image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
             env:
+            - name: CONNECTOR_MODE
+              value: "GIT_FSH"
             - name: MODE_GIT_FSH_SOURCE_REPO
               value: "https://github.com/hl7-eu/gravitate-health-ips.git"
             - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
