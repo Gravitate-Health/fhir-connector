@@ -1,3 +1,4 @@
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fhir-connector-api
@@ -10,19 +11,20 @@ spec:
     metadata:
       labels:
         app: fhir-connector-api
-        spec:
-          serviceAccountName: focusing-manager-serviceaccount
-          containers:
-          - name: fhir-connector-api
-            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
-            imagePullPolicy: Always
-            env:
-            - name: ENVIRONMENT
-              value: dev
-            - name: CONNECTOR_MODE
-              value: HAPI_FHIR_SERVER_PROXY
-            - name: MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST
-              value: ["http://example.com", "http://example2.com"]
-            - name: LOG_LEVEL
-              value: INFO
-          restartPolicy: OnFailure
+    spec:
+      serviceAccountName: focusing-manager-serviceaccount
+      containers:
+      - name: fhir-connector-api
+        image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+        resources: {}
+        imagePullPolicy: Always
+        env:
+        - name: ENVIRONMENT
+          value: prod
+        - name: CONNECTOR_MODE
+          value: HAPI_FHIR_SERVER_PROXY
+        #- name: MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST
+        #  value: ["http://example.com", "http://example2.com"]
+        - name: LOG_LEVEL
+          value: INFO
+      restartPolicy: Always

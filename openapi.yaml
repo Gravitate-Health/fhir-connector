@@ -34,7 +34,7 @@ paths:
     get:
       summary: "Get list of available connectors in FOSPS"
       tags:
-        - Connector
+        - Connector API
       responses:
         "200":
           description: "OK"
@@ -52,6 +52,15 @@ paths:
   /connector/api/connectors/{connectorName}/run:
     post:
       summary: "Run connector on demand"
+      tags:
+        - Connector API
+      parameters:
+        - name: connectorName
+          in: path
+          required: true
+          description: "Name of the connector to run"
+          schema:
+            type: string
       responses:
         "200":
           description: "OK"

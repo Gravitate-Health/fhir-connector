@@ -5,3 +5,5 @@ resources:
 patches:
 - path: fhir-connector-git-epi-cronjob.yaml
 - path: fhir-connector-git-ips-cronjob.yaml
+- path: fhir-connector-fhir-sync-hl7-cronjob.yaml
+- path: fhir-connector-api-deployment.yaml

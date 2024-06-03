@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fhir-connector-api
+spec:
+  selector:
+    matchLabels:
+      app: fhir-connector-api
+  template:
+    metadata:
+      labels:
+        app: fhir-connector-api
+    spec:
+      containers:
+      - name: fhir-connector-api
+        env:
+        - name: ENVIRONMENT
+          value: dev
