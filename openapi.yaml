@@ -1,0 +1,48 @@
+openapi: "3.0.1"
+info:
+  title: Gravitate Health Connector API Interface
+  version: MVP3
+  description: Gravitate Health connector.
+  contact: {}
+servers:
+  - url: https://fosps.gravitatehealth.eu
+  - url: https://gravitate-health.lst.tfo.upm.es
+paths:
+  /connector/api/connectors/list:
+    get:
+      summary: "Get list of available connectors in FOSPS"
+      tags:
+        - Connector
+      responses:
+        "200":
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ["IPS", "EPI", "FHIR_SYNC"]
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+  /connector/api/connectors/{connectorName}/run:
+    post:
+      summary: "Run connector on demand"
+      responses:
+        "200":
+          description: "OK"
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound"
+  
+components:
+  responses:
+    422InvalidData:
+      description: Invalid Data
+    400BadRequest:
+      description: Bad Request
+    404NotFound:
+      description: Not Found

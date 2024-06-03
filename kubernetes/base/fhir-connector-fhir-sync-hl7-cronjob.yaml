@@ -2,6 +2,8 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: fhir-connector-fhir-sync-hl7
+  labels:
+    eu.gravitate-health.fosps.connector: "true"
 spec:
   schedule: "0 2 * * *"
   suspend: false
