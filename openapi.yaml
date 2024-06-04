@@ -8,6 +8,28 @@ servers:
   - url: https://fosps.gravitatehealth.eu
   - url: https://gravitate-health.lst.tfo.upm.es
 paths:
+  /connector/api/:
+    post:
+      summary: "server-transaction: Execute a FHIR Transaction (or FHIR Batch) Bundle"
+      tags:
+        - ePI
+      description: Search Bundle ePI with a FHIR query. More information about FHIR transactions in https://www.hl7.org/fhir/http.html#transaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              resourceType: "Bundle"
+              type: "transaction"
+              entry:
+                - request:
+                    method: "GET"
+                    url: "Patient?name=alicia"
+          
+      responses:
+        "200":
+          description: "OK"
   /connector/api/connectors/list:
     get:
       summary: "Get list of available connectors in FOSPS"
