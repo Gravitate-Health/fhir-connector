@@ -33,6 +33,8 @@ paths:
   /connector/api/connectors/list:
     get:
       summary: "Get list of available connectors in FOSPS"
+      security:
+        - bearerAuth: []
       tags:
         - Connector API
       responses:
@@ -52,6 +54,8 @@ paths:
   /connector/api/connectors/{connectorName}/run:
     post:
       summary: "Run connector on demand"
+      security:
+        - bearerAuth: []
       tags:
         - Connector API
       parameters:

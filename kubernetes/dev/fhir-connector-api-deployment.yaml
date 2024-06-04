@@ -7,9 +7,6 @@ spec:
     matchLabels:
       app: fhir-connector-api
   template:
-    metadata:
-      labels:
-        app: fhir-connector-api
     spec:
       containers:
       - name: fhir-connector-api

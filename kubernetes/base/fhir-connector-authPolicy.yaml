@@ -1,0 +1,29 @@
+# Require valid JWT for apps that have the label "istioRequireAuthentication: true"
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: fhir-connector-authpolicy
+spec:
+  selector:
+    matchLabels:
+      app: fhir-connector-api
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/connectors/list", "/connectors/list/"]
+        - operation:
+            methods: ["POST"]
+            paths: ["/connectors/*"]
+
+
+    ## No authentication required
+    - to:
+        - operation:
+            methods: ["POST"]
+            paths: ["/"]

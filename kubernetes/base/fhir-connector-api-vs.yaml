@@ -25,6 +25,8 @@ spec:
     - match:
         - uri:
             prefix: /connector/api/
+        - uri:
+            exact: /connector/api
       rewrite:
         uri: "/"
       route:

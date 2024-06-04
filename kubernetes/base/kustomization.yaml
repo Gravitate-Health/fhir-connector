@@ -2,7 +2,10 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
+  - fhir-connector-api-deployment.yaml
+  - fhir-connector-api-service.yaml
+  - fhir-connector-api-vs.yaml
+  - fhir-connector-authPolicy.yaml
+  - fhir-connector-fhir-sync-hl7-cronjob.yaml
   - fhir-connector-git-epi-cronjob.yaml
   - fhir-connector-git-ips-cronjob.yaml
-  - fhir-connector-fhir-sync-hl7-cronjob.yaml
-  - fhir-connector-api-deployment.yaml

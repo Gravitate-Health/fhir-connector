@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: fhir-connector-api
+        istioRequireAuthentication: "true"
     spec:
       serviceAccountName: focusing-manager-serviceaccount
       containers:
