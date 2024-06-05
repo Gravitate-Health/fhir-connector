@@ -23,7 +23,7 @@ spec:
             - name: MODE_GIT_FSH_SOURCE_REPO
               value: "https://github.com/hl7-eu/gravitate-health-ips.git"
             - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
-              value: "master"
+              value: "prod"
             - name: DESTINATION_SERVER
               value: "https://fosps.gravitatehealth.eu/ips/api/fhir"
             - name: IPS_WHITELIST

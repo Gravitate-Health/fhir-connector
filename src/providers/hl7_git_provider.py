@@ -37,6 +37,9 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
+MODE_GIT_FSH_SOURCE_REPO = os.getenv("MODE_GIT_FSH_SOURCE_REPO")
+DESTINATION_SERVER = os.getenv("DESTINATION_SERVER")
 class Hl7FhirPRovider:
     logger = logging.getLogger(__name__)
     epi_config = configs.hl7_epi.get_configuration()
@@ -45,7 +48,7 @@ class Hl7FhirPRovider:
     def __init__(self):
         self.git_provider = gitProvider()
         self.sushi_provider = sushiProvider()
-        self.fhir_provider = FhirProvider()
+        self.fhir_provider = FhirProvider(DESTINATION_SERVER)
 
     def read_fhir_resource_from_file(self, path):
         self.logger.debug(f"Reading resource: {path}")
@@ -76,6 +79,8 @@ class Hl7FhirPRovider:
     def update_server_from_git_repo(self, fhir_config, resources_list, whitelist=[]):
         """Uploads a list of resources to a FHIR server"""
         
+        self.fhir_provider.destination_server = fhir_config["server"]
+        
         errors_object = {}
         for order_list_type in fhir_config["orderList"]:
             for resource in resources_list:
@@ -85,9 +90,7 @@ class Hl7FhirPRovider:
                 if resource_type != order_list_type:
                     continue  # Go to next resource as this is not the type we are looking for
 
-                error = self.fhir_provider.write_fhir_resource_to_server(
-                    resource, fhir_config["server"]
-                )
+                error = self.fhir_provider.write_fhir_resource_to_server(resource, MODE_GIT_FSH_SOURCE_REPO)
                 if(error):
                     errors_object[resource_type].append(error)
         return errors_object
