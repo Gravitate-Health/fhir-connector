@@ -13,6 +13,7 @@ EPI_SERVER = os.getenv("DESTINATION_SERVER")
 EPI_ORDER_LIST = [
     "Binary",
     "MedicinalProductDefinition",
+    "DocumentReference",
     "Organization",
     "PackagedProductDefinition",
     "RegulatedAuthorization",
