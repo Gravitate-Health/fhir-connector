@@ -24,8 +24,8 @@ spec:
           value: prod
         - name: CONNECTOR_MODE
           value: HAPI_FHIR_SERVER_PROXY
-        #- name: MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST
-        #  value: ["http://example.com", "http://example2.com"]
+        - name: MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST
+          value: '["https://fosps.gravitatehealth.eu/epi/api/fhir/", "https://fosps.gravitatehealth.eu/ips/api/fhir/"]'
         - name: LOG_LEVEL
           value: INFO
       restartPolicy: Always

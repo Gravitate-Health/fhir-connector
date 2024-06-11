@@ -1,15 +1,17 @@
-from flask import Flask
+from flask import Flask, json, request
 from kubernetes import client, config
 from pick import pick
 from datetime import datetime
 import os
 import copy
 import logging
+import os, providers.fhir_provider
 
 logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
+MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST = json.loads(os.getenv("MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST"))
 
 try:
     config.load_kube_config(context='microk8s@GH-Development')
@@ -25,6 +27,25 @@ def run():
     
     app.run(host='0.0.0.0')
 
+
+@app.route('/', methods=['POST'])
+def fhir_search():
+    body = json.loads(request.data)
+    print(MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST)
+    final_response = []
+    for server_url in MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST:
+        print(server_url)
+        fhir_provider_source = providers.fhir_provider.FhirProvider(server_url)
+        response = fhir_provider_source.generic_search(body)
+        final_response.append(response.json())
+    
+    # Merge all responses in a single one 
+    response = final_response[0]
+    for i in range(1, len(final_response)):
+        response["entry"] += final_response[i]["entry"]
+    
+    return response
+    
 @app.route('/connectors/list', methods=['GET'])
 def list_connectors():
     # List Deployments

@@ -57,7 +57,7 @@ class FhirProvider:
             if method == "PUT":
                 error = self.http_client.put(url, resource)
             elif method == "POST":
-                error = self.http_client.post(url, resource)
+                response, error = self.http_client.post(url, resource)
             if(error):
                 errors.append(error)
             else:
@@ -161,6 +161,15 @@ class FhirProvider:
             self.delete_fhir_resource_from_server(entry["resource"], url)
         try:
             response = self.http_client.delete(url)
+        except:
+            pass
+        return response
+
+    def generic_search(self, query):
+        url = f"{self.server_url}"
+        self.logger.info(f"Searching {url}... with query {query}")
+        try:
+            response, errors = self.http_client.post(url, query)
         except:
             pass
         return response

@@ -65,7 +65,7 @@ class HttpClient:
         if response.status_code not in [200, 201]:
             self.logger.error(f"Unsuccessful POST request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
-        return errors
+        return response, errors
 
     def delete(self, url):
         errors = []

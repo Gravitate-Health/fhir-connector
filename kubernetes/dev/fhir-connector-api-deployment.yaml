@@ -13,3 +13,5 @@ spec:
         env:
         - name: ENVIRONMENT
           value: dev
+        - name: MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST
+          value: '["https://gravitate-health.lst.tfo.upm.es/epi/api/fhir/", "https://gravitate-health.lst.tfo.upm.es/ips/api/fhir/"]'
