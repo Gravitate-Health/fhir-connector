@@ -11,13 +11,15 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
-MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST = json.loads(os.getenv("MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST"))
+try:
+    MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST = json.loads(os.getenv("MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST"))
+except:
+    pass
 
 try:
     config.load_kube_config(context='microk8s@GH-Development')
 except:
     config.load_incluster_config()
-    
 
 apps_v1 = client.AppsV1Api()
 batch_v1 = client.BatchV1Api()

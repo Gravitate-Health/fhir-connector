@@ -17,6 +17,7 @@ class Mail_client:
 
 
     def create_message(self,  errors: list):
+        print(errors)
         msg = EmailMessage()
         msg["From"] = os.getenv("EMAIL_SENDER")
         msg["To"] = os.getenv("EMAIL_RECIPIENT")
@@ -33,7 +34,10 @@ class Mail_client:
         # Count how many errors there are
         error_count = 0
         for resource_type in errors:
-            error_count += len(errors[resource_type])
+            try:
+                error_count += len(errors[resource_type])
+            except:
+                pass
             
         # Write errors to disk 
         file_name = f"fhir_connector_{date_string}-log.json"

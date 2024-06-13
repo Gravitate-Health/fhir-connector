@@ -89,7 +89,6 @@ class Hl7FhirPRovider:
                     errors_object[resource_type] = []
                 if resource_type != order_list_type:
                     continue  # Go to next resource as this is not the type we are looking for
-
                 error = self.fhir_provider.write_fhir_resource_to_server(resource, MODE_GIT_FSH_SOURCE_REPO)
                 if(error):
                     errors_object[resource_type].append(error)

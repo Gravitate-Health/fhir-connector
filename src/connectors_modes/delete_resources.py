@@ -14,8 +14,8 @@ def connector_delete_resources(mail_client: utils.mail_client.Mail_client):
     types = os.getenv("DELETE_RESOURCES_TYPES").strip("][").split(", ")
     
     for resource_type in types:
-        print(f"Deleting {resource_type} resources")
         resources = fhir_provider.get_fhir_all_resource_type_from_server(resource_type)
+        print(f"Deleting {len(resources)} {resource_type} resources")
         if(resources != None):
             for resource in resources:
                 errors = fhir_provider.delete_fhir_resource_from_server(resource["resource"])

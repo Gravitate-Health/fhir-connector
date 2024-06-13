@@ -39,41 +39,116 @@ class FhirProvider:
         resources.append(bundle) # This is because the bundle is not included in the entries
         return resources
 
-    def write_fhir_resource_to_server(self, resource, source_server = "", method = "PUT"):
-        self.logger.info("------------- New resource to write to server -------------")
+    def get_resource_by_id(self, resource_type, resource_id):
+        url = f"{self.server_url}/{resource_type}/{resource_id}"
+        #self.logger.info(f"Getting {resource_type} with id {resource_id} from {url}")
+        response = None
+        try:
+            response = self.http_client.get(url)
+        except:
+            pass
+        return response
+
+    def generate_new_version(self, resource):
+        newVersion = int(resource["meta"]["versionId"]) + 1
+        resource["meta"]["versionId"] = str(newVersion)
+        resource["meta"]["lastUpdated"] = datetime.now(timezone.utc).isoformat()
+        return resource
+
+    def write_fhir_resource_to_server(self, resource, source_server = ""):
         resource_type = resource["resourceType"]
+        #self.logger.info(f"Writing resource of type {resource_type} to server.")
         url = self.server_url
-        self.logger.debug(f"Trying to write {resource_type} to {url}")
         
+        # Before writing the resource, try to get it from the server
+        # If it exists, we will update it, if not, we will create it
+        
+        # First try to retrieve the resource
+        try:
+            if(resource_type == "Provenance"):
+                resource_retrieved = self.get_provenance_object(resource["target"][0]["reference"])
+            else:
+                resource_retrieved = self.get_resource_by_id(resource_type, resource["id"])
+        except:
+            resource_retrieved = None
+        try:
+            original_version = int(resource_retrieved["meta"]["versionId"])
+        except:
+            original_version = 0
+        #print(resource_retrieved)
+        if (resource_retrieved != None):
+            # If resource existed
+            if (resource_retrieved != resource):
+                # And it's different, create new version if it is different fom before
+                resource = self.generate_new_version(resource)
+                pass
+            else:
+                # If nothing changed, do nothing
+                return
+        # If resource did not exist, create        
+        #self.logger.debug(f"Trying to write {resource_type} to {url}")
         errors = []
+        try:
+            new_version = int(resource["meta"]["versionId"])
+        except:
+            new_version = 1
         try:
             resource_id = resource["id"]
             url = f"{url}/{resource_type}/{resource_id}"
         except:
             resource_id = None
             url = f"{url}/{resource_type}"
-        self.logger.info(f"Uploading {resource_type} with id {resource_id}")
-        try:
-            if method == "PUT":
-                error = self.http_client.put(url, resource)
-            elif method == "POST":
-                response, error = self.http_client.post(url, resource)
-            if(error):
-                errors.append(error)
-            else:
-                # Generate provenance for the resource
-                if(resource_type in ["Bundle", "DocumentReference", "Library"]):
-                    provenance = self.generate_provenance(resource, source_server)
-                    errors.append(self.write_fhir_resource_to_server(provenance, self.server_url, "POST"))
-        except:
-            pass
-        return errors
+        #self.logger.info(f"Uploading {resource_type} with id {resource_id}")
         
+        # PUT resource to server
+        response = None
+        try:
+            response, error = self.http_client.put(url, resource)
+        except Exception as e:
+            print(e)
+        status_code = response.status_code
+        if(error and len(error) > 0):
+            errors.append(error)
+            return errors
+        
+        # Generate provenance for the resource
+        #print("original_version: ", original_version)
+        #print("new_version: ", new_version)
+        if(resource_type in ["Bundle", "DocumentReference", "Library"]):
+            if (status_code == 200):
+                # Nothing happpened
+                pass
+            elif (status_code == 201):
+                # Created
+                pass
+            elif (status_code == 204):
+                # Don't know
+                pass
+            else:
+                # Error
+                pass
+            #if (new_version == 1 or new_version > original_version ):
+                # Generate provenance only if resource is new or if a new version was created
+            try:
+                provenance = self.generate_provenance(resource_retrieved, resource, source_server)
+            except Exception as e:
+                self.logger.error(e)
+            try:
+                target = provenance["target"][0]["reference"]
+                provenance_response, provenance_errors = self.handle_provenance(provenance, target)
+                if (len(provenance_errors) > 0):
+                    errors.append(provenance_errors)
+            except Exception as e:
+                self.logger.error(e)
+        return errors
     
     def get_fhir_all_resource_type_from_server(self, resource_type, url = "",all_entries = [], limit = 100000):
+        if (limit == 0):
+            limit = 100000
+        #self.logger.info(f"Getting resourceType {resource_type} from server. Limit: {limit} urL: {url}")
         if url == "":
-            url = f"{self.server_url}/{resource_type}"
-        self.logger.info(f"Getting {url}...")
+            url = f"{self.server_url}/{resource_type}?_count={limit}"
+        #self.logger.info(f"Getting {url}...")
         try:
             response = self.http_client.get(url)
             link = response["link"]
@@ -86,10 +161,10 @@ class FhirProvider:
                     return all_entries
                 if(link):
                     if(link[1]["relation"] == "next"):
-                        return self.get_fhir_all_resource_type_from_server(link[1]["url"], resource_type, all_entries)  # Return the recursive call
+                        return self.get_fhir_all_resource_type_from_server(resource_type=resource_type, url=link[1]["url"], all_entries=all_entries)  # Return the recursive call
         except:
             pass
-        self.logger.info(f"Got a total of {len(all_entries)} entries from FHIR server")  # Use len() instead of __len__()
+        self.logger.info(f"Got a total of {len(all_entries)} {resource_type} from {self.server_url}")  # Use len() instead of __len__()
         return all_entries
 
     def delete_fhir_resource_from_server(self, resource):
@@ -103,8 +178,46 @@ class FhirProvider:
             pass
         return response
 
-    def generate_provenance(self, resource, source_server = ""):
-        self.logger.info(f"Generating provenance for {resource['resourceType']} with id {resource['id']}")
+    def get_provenance_object(self, target):
+        url = f"{self.server_url}/Provenance?target={target}"
+        self.logger.debug(f"Getting Provenance from {url}")
+        try:
+            response = self.http_client.get(url)
+        except:
+            pass
+        return response
+
+    def handle_provenance(self, provenance, target = ""):
+        url = self.server_url + "/Provenance"
+        # Before writing the resource, try to get it from the server
+        # If it exists, we will update it, if not, we will create it
+        
+        # First try to retrieve the resource
+        searchset = self.get_provenance_object(target)
+        provenances_retrieved = []
+        if (searchset["total"] == 0):
+            self.logger.info(f"No provenance found for target {target}")
+        else:
+            provenances_retrieved = searchset["entry"]
+            if (len(provenances_retrieved) > 0):
+                self.logger.info(f"PROVENANCE: Found {len(provenances_retrieved)} provenances for target {target}. Not creating provenance")
+        
+        errors = []
+        response = None
+        if (len(provenances_retrieved) > 0):
+            return response, errors
+        try:
+            response, error = self.http_client.post(url, provenance)
+        except:
+            pass
+        status_code = response.status_code
+        if(error):
+            errors.append(error)
+        return response, errors
+
+
+    def generate_provenance(self, resource_retrieved, resource, source_server = ""):
+        self.logger.debug(f"Generating provenance for {resource['resourceType']} with id {resource['id']}")
         try:
             resource_id = resource["id"]
         except:
@@ -120,9 +233,9 @@ class FhirProvider:
             "recorded": datetime.now(timezone.utc).isoformat(),
             "activity": {
                 "coding" : [{
-                "system" : "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir",
-                "code" : "access",
-                "display" : "Access/View Record Lifecycle Event"
+                "system" : "http://terminology.hl7.org/CodeSystem/iso-21089-lifecycle",
+                "code" : "originate",
+                "display" : "Originate/Retain Record Lifecycle Event"
                 }]
             },
             "agent": [
@@ -146,7 +259,7 @@ class FhirProvider:
             "entity" : [{
                 "role" : "source",
                 "what" : {
-                "reference" : f"{source_server}/{resource['resourceType']}/{resource_id}"
+                "reference" : f"{source_server}/{resource['resourceType']}/{resource_id}/_history/{resource['meta']['versionId']}"
                 }
             }]
         }
