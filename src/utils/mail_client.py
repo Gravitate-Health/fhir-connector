@@ -54,7 +54,9 @@ class Mail_client:
         ) = f"""Logs from fhir-connector. 
         
         - Date: {full_date_string}
+        - CONNECTOR MODE: {os.getenv("CONNECTOR_MODE")}
         
+        - SYNC SOURCE SERVER: {os.getenv("MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER")}
         - DESTINATION SERVER: {os.getenv("DESTINATION_SERVER")}
         - Pulled git repo: {os.getenv("MODE_GIT_FSH_SOURCE_REPO")}
         - Pulled git branch: {os.getenv("MODE_GIT_FSH_SOURCE_REPO_BRANCH")}

@@ -51,6 +51,8 @@ class FhirProvider:
 
     def generate_new_version(self, resource):
         newVersion = int(resource["meta"]["versionId"]) + 1
+        if (resource["meta"] == None):
+            resource["meta"] = {}
         resource["meta"]["versionId"] = str(newVersion)
         resource["meta"]["lastUpdated"] = datetime.now(timezone.utc).isoformat()
         return resource
@@ -223,11 +225,14 @@ class FhirProvider:
         except:
             self.logger.warning(f"Resource {resource['resourceType']} does not have an id")
             resource_id = None
+        version = {resource['meta']['versionId']}
+        if (version == None or version == 0):
+            version = 1
         provenance = {
             "resourceType": "Provenance",
             "target": [
                 {
-                    "reference": f"{self.server_url}/{resource['resourceType']}/{resource['id']}"
+                    "reference": f"{self.server_url}/{resource['resourceType']}/{resource['id']}/_history/{version}"
                 }
             ],
             "recorded": datetime.now(timezone.utc).isoformat(),

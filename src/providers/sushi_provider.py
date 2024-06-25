@@ -1,4 +1,4 @@
-from utils.fs_utils import change_directory
+from utils.fs_utils import change_directory, create_directory_if_not_exists
 from os import system
 import logging
 
@@ -11,7 +11,7 @@ class sushiProvider:
         pass
 
     def execute_sushi(self, path) -> None:
-        
+        create_directory_if_not_exists(path)
         change_directory(path)
         command = "sushi ."
 
