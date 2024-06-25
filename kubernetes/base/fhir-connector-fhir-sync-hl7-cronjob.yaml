@@ -23,7 +23,7 @@ spec:
             - name: MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER
               value: "https://sandbox.hl7europe.eu/gravitate-health/fhir"
             - name: MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES
-              value: "[Bundle, Patient, Observation]"
+              value: "[Organization, MedicinalProductDefinition, Bundle, Patient, Observation, Composition]"
             - name: DESTINATION_SERVER
               value: "https://fosps.gravitatehealth.eu/epi/api/fhir"
             - name: LOG_LEVEL
