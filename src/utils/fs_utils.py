@@ -19,6 +19,7 @@ def list_directory_files_paths(path):
 
 
 def change_directory(path):
+    create_directory_if_not_exists(path)
     return chdir(path)
 
 

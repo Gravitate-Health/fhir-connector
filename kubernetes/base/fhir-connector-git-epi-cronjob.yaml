@@ -45,5 +45,5 @@ spec:
                   key: password
             imagePullPolicy: Always
           restartPolicy: OnFailure
-  successfulJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 2

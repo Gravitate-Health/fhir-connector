@@ -24,23 +24,34 @@ class HttpClient:
 
         session.hooks["response"].append(self.__print_response_hook__)
         session.mount("https://", adaptor)
+        
+        session.cache_disabled = True
         return session
 
     def __print_response_hook__(
         self, request: requests.Response, *args, **kwargs
     ) -> None:
+        id = ""
+        try:
+            if (request.json() != None):
+                resource_type = request.json()["resourceType"]
+                id = request.json()["id"]
+        except:
+            resource_type = ""
         self.logger.info(
-            f" {request.status_code} on {request.request.method} {request.url}"
+            f" {request.status_code} {request.request.method} {resource_type} {id} ({request.url})"
         )
 
     def get(self, url):
-        response = self.http_session.get(url, timeout=self.timeout)
+        #self.logger.info(f"GET {url}")
+        response = self.http_session.get(url, timeout=self.timeout, headers = {'Cache-Control': 'no-cache'})
         return response.json()
 
     def put(self, url, body):
+        #self.logger.info(f"PUT {url}")
         errors = []
         try:
-            response = requests.put(url, json=body)
+            response = self.http_session.put(url, json=body, headers = {'Cache-Control': 'no-cache'})
         except Exception as error:
             self.logger.error(error)
             self.logger.error(
@@ -48,14 +59,15 @@ class HttpClient:
             )
             return
         if response.status_code not in [200, 201]:
-            self.logger.error(f"Unsuccessful PUT request for {body['resourceType']}" )
+            #self.logger.error(f"Unsuccessful PUT request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
-        return errors
+        return response, errors
 
     def post(self, url, body):
+        #self.logger.info(f"POST {url}")
         errors = []
         try:
-            response = requests.post(url, json=body)
+            response = self.http_session.post(url, json=body, headers = {'Cache-Control': 'no-cache'})
         except Exception as error:
             self.logger.error(error)
             self.logger.error(
@@ -63,20 +75,21 @@ class HttpClient:
             )
             return
         if response.status_code not in [200, 201]:
-            self.logger.error(f"Unsuccessful POST request for {body['resourceType']}" )
+            #self.logger.error(f"Unsuccessful POST request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
-        return errors
+        return response, errors
 
     def delete(self, url):
+        #self.logger.info(f"DELETE {url}")
         errors = []
         try:
-            response = requests.delete(url)
+            response = self.http_session.delete(url, headers = {'Cache-Control': 'no-cache'})
         except Exception as error:
             self.logger.error(error)
             self.logger.error(f"[HTTP ERROR] Error in DELETE to: {url}")
             return
         if response.status_code not in [200, 201]:
-            self.logger.error(f"Unsuccessful DELETE request for {url}" )
+            #self.logger.error(f"Unsuccessful DELETE request for {url}" )
             errors = self.parse_issues(url, response)
         return errors
 

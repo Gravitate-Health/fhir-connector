@@ -16,7 +16,7 @@ def configure_logging(log_level):
         "disable_existing_loggers": False,
         "formatters": {
             "default": {
-                "format": "%(asctime)s | %(name)s:%(lineno)d %(levelname)s %(message)s",
+                "format": "%(asctime)s | [%(name)s:%(lineno)d] [%(levelname)s] %(message)s",
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
             "simple": {

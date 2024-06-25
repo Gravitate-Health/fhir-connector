@@ -14,5 +14,3 @@ spec:
             env:
             - name: DESTINATION_SERVER
               value: "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir"
-  successfulJobsHistoryLimit: 6
-  failedJobsHistoryLimit: 4
