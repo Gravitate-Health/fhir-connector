@@ -139,7 +139,7 @@ class FhirProvider:
                 target = provenance["target"][0]["reference"]
                 provenance_response, provenance_errors = self.handle_provenance(provenance, target)
                 if (len(provenance_errors) > 0):
-                    errors.append(provenance_errors)
+                    errors.extend(provenance_errors)
             except Exception as e:
                 self.logger.error(e)
         return errors
