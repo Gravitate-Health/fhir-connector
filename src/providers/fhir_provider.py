@@ -50,7 +50,11 @@ class FhirProvider:
         return response
 
     def generate_new_version(self, resource):
-        newVersion = int(resource["meta"]["versionId"]) + 1
+        newVersion = 1
+        try:
+            newVersion = int(resource["meta"]["versionId"]) + 1
+        except:
+            pass
         if (resource["meta"] == None):
             resource["meta"] = {}
         resource["meta"]["versionId"] = str(newVersion)
