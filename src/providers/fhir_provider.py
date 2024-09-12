@@ -55,10 +55,13 @@ class FhirProvider:
             newVersion = int(resource["meta"]["versionId"]) + 1
         except:
             pass
-        if (resource["meta"] == None):
-            resource["meta"] = {}
-        resource["meta"]["versionId"] = str(newVersion)
-        resource["meta"]["lastUpdated"] = datetime.now(timezone.utc).isoformat()
+        try:
+            if (resource["meta"] == None):
+                resource["meta"] = {}
+            resource["meta"]["versionId"] = str(newVersion)
+            resource["meta"]["lastUpdated"] = datetime.now(timezone.utc).isoformat()
+        except:
+            pass
         return resource
 
     def write_fhir_resource_to_server(self, resource, source_server = ""):
@@ -82,7 +85,7 @@ class FhirProvider:
         except:
             original_version = 0
         #print(resource_retrieved)
-        if (resource_retrieved != None):
+        if (resource_retrieved != None and resource_retrieved["resourceType"] == resource_type):
             # If resource existed
             if (resource_retrieved != resource):
                 # And it's different, create new version if it is different fom before
