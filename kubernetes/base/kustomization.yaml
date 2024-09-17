@@ -9,3 +9,5 @@ resources:
   - fhir-connector-fhir-sync-hl7-cronjob.yaml
   - fhir-connector-git-epi-cronjob.yaml
   - fhir-connector-git-ips-cronjob.yaml
+  - fhir-connector-expugne-epi.yaml
+  - fhir-connector-expugne-ips.yaml

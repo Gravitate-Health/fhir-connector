@@ -289,7 +289,37 @@ class FhirProvider:
         except:
             pass
         return response
-
+    
+    def expunge_server(self):
+        url = f"{self.server_url}/$expunge"
+        self.logger.info(f"Expunging {url}...")
+        body = {
+            "resourceType": "Parameters",
+            "parameter": [
+                {
+                "name": "limit",
+                "valueInteger": 100000
+                },
+                {
+                "name": "expungeDeletedResources",
+                "valueBoolean": "true"
+                },
+                {
+                "name": "expungePreviousVersions",
+                "valueBoolean": "true"
+                },
+                {
+                "name": "expungeEverything",
+                "valueBoolean": "true"
+                }
+            ]
+            }
+        try:
+            response = self.http_client.post(url=url, body=body)
+        except:
+            pass
+        return response
+    
     def generic_search(self, query):
         url = f"{self.server_url}"
         self.logger.info(f"Searching {url}... with query {query}")

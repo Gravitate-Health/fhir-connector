@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fhir-connector-expugne-epi
+  labels:
+    eu.gravitate-health.fosps.connector: "true"
+spec:
+  schedule: "0 1 * * *"
+  suspend: false
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+        spec:
+          containers:
+          - name: fhir-connector-expugne-epi
+            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+            env:
+            - name: CONNECTOR_MODE
+              value: "DELETE_RESOURCES"
+            - name: DESTINATION_SERVER
+              value: "https://fosps.gravitatehealth.eu/epi/api/fhir"
+            - name: LOG_LEVEL
+              value: INFO
+
+              # Email settings
+            - name: EMAIL_ENABLED
+              value: "true"
+            - name: EMAIL_SENDER
+              value: "fosps-noreply@lst.tfo.upm.es"
+            - name: EMAIL_SMTP_SERVER
+              value: "smtp.lst.tfo.upm.es"
+            - name: EMAIL_RECIPIENT
+              value: "fosps-logs@lst.tfo.upm.es"
+            - name: EMAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fhir-connector-email-password
+                  key: password
+            imagePullPolicy: Always
+          restartPolicy: OnFailure
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 2

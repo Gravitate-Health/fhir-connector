@@ -103,7 +103,7 @@ if __name__ == "__main__":
     
     elif MODE == Connector_Modes.DELETE_RESOURCES:
         logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
-        delete_resources.connector_delete_resources(mail_client)
+        delete_resources.delete_all_resources(mail_client)
     # Working mode: other
     else:
         logger.error("Connector working mode not implemented: " + MODE)
