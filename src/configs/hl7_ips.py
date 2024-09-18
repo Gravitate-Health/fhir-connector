@@ -12,6 +12,8 @@ IPS_ORDER_LIST = [
     "Practitioner",
     "Condition",
     "Medication",
+    "Observation",
+    "DocumentReference",
     "MedicationStatement",
     "AllergyIntolerance",
     "Immunization",
