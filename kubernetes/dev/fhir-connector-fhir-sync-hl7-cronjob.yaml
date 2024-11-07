@@ -9,6 +9,7 @@ spec:
     spec:
       template:
         spec:
+          suspend: false
           containers:
           - name: fhir-connector-fhir-sync-hl7
             env:

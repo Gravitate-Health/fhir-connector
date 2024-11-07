@@ -14,6 +14,7 @@ spec:
           annotations:
             sidecar.istio.io/inject: "false"
         spec:
+          suspend: true
           containers:
           - name: fhir-connector-git-epi
             image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
@@ -23,7 +24,7 @@ spec:
             - name: MODE_GIT_FSH_SOURCE_REPO
               value: "https://github.com/hl7-eu/gravitate-health.git"
             - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
-              value: "mvp2"
+              value: "mvp3"
             - name: DESTINATION_SERVER
               value: "https://fosps.gravitatehealth.eu/epi/api/fhir"
             - name: LOG_LEVEL

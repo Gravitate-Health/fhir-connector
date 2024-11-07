@@ -14,6 +14,7 @@ spec:
           annotations:
             sidecar.istio.io/inject: "false"
         spec:
+          suspend: true
           containers:
           - name: fhir-connector-fhir-sync-hl7
             image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
