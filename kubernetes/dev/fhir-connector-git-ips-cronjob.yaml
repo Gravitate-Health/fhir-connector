@@ -9,7 +9,6 @@ spec:
     spec:
       template:
         spec:
-          suspend: false
           containers:
           - name: fhir-connector-git-ips
             env:

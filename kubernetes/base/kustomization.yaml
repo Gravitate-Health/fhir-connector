@@ -11,3 +11,4 @@ resources:
   - fhir-connector-git-ips-cronjob.yaml
   - fhir-connector-expugne-epi.yaml
   - fhir-connector-expugne-ips.yaml
+  - fhir-connector-sm-tool.yaml

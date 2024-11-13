@@ -10,3 +10,4 @@ patches:
 - path: fhir-connector-git-ips-cronjob.yaml
 - path: fhir-connector-expugne-epi.yaml
 - path: fhir-connector-expugne-ips.yaml
+- path: fhir-connector-sm-tool.yaml

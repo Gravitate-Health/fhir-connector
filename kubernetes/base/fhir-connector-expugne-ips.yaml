@@ -6,7 +6,7 @@ metadata:
     eu.gravitate-health.fosps.connector: "true"
 spec:
   schedule: "0 1 * * *"
-  suspend: false
+  suspend: true
   jobTemplate:
     spec:
       template:
@@ -14,7 +14,6 @@ spec:
           annotations:
             sidecar.istio.io/inject: "false"
         spec:
-          suspend: true
           containers:
           - name: fhir-connector-expugne-ips
             image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
