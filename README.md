@@ -19,6 +19,7 @@
     - [Environment variables for working mode: GIT\_FSH](#environment-variables-for-working-mode-git_fsh)
     - [Environment variables for working mode: HAPI\_FHIR\_SERVER\_SYNC](#environment-variables-for-working-mode-hapi_fhir_server_sync)
     - [Environment variables for working mode: FHIR\_SERVER\_PROXY](#environment-variables-for-working-mode-fhir_server_proxy)
+    - [Environment variables for working mode: SMM\_TOOL](#environment-variables-for-working-mode-smm_tool)
   - [Deployment](#deployment)
     - [Local deployment](#local-deployment)
     - [Deployment](#deployment-1)
@@ -109,6 +110,23 @@ data:
 | SOURCE_SERVER_LIST          | ["https://fhir-server1.com", "https://fhir-server2.com"]     	|                                       	          |
 | DESTINATION_SERVER        	| https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	          |
 
+
+### Environment variables for working mode: SMM_TOOL
+
+| Task          	            | Description                                                 	| Possible values                       	          |
+|---------------------------- |-------------------------------------------------------------	|---------------------------------------	          |
+| CONNECTOR_MODE 	            | Working mode of the connector                               	| SMM_TOOL                                     	    |
+| DESTINATION_SERVER        	| https://gravitate-health.lst.tfo.upm.es/epi/api/fhir         	|                                       	          |
+| SMM_SERVER_URL              | https://budibase.gravitate-health.lst.tfo.upm.es/api/public/v1|                                       	          |
+| SMM_APP_ID                	| Budibase app id                                              	|                                       	          |
+| SMM_TABLE_ID              	| Budibase table id                                            	|                                       	          |
+| SMM_API_KEY               	| Read from k8s secret                                         	|                                       	          |
+
+To create API KEY secret: 
+```bash
+kubectl create secret generic budibase-smm-api-key-secret --from-literal=apikey=API_KEY_STRING
+```
+kubectl create secret generic budibase-smm-api-key-secret --from-literal=apikey=363d4adf8234c7ac0a9e9a356addd061-c544898c110bd82ee96436d2b95039fc3d84690af962993bf1f196951653f9d0444ad1e8abaff19d
 
 ## Deployment
 

@@ -36,7 +36,7 @@ import os
 """ from connectors_modes import git_fsh
 from connectors_modes import fhir_server_sync """
 
-from connectors_modes import git_fsh, fhir_server_sync, delete_resources, fhir_server_proxy
+from connectors_modes import git_fsh, fhir_server_sync, delete_resources, fhir_server_proxy, smm_tool
 from datetime import datetime, timezone
 
 """
@@ -63,6 +63,7 @@ class Connector_Modes(enumerate):
     HAPI_FHIR_SERVER_SYNC = "HAPI_FHIR_SERVER_SYNC"
     GIT_FSH = "GIT_FSH"
     DELETE_RESOURCES = "DELETE_RESOURCES"
+    SMM_TOOL = "SMM_TOOL"
 
 
 # TODO: pass parameter to choose which git repos will be synced. If parameter is missing or is equal to "all", sync all repos
@@ -105,6 +106,10 @@ if __name__ == "__main__":
         logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
         delete_resources.delete_all_resources(mail_client)
     # Working mode: other
+    elif MODE == Connector_Modes.SMM_TOOL:
+        logger.info("  SMM_SERVER_URL: " + os.getenv("SMM_SERVER_URL"))
+        logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
+        smm_tool.connector_smm_tool(mail_client)
     else:
         logger.error("Connector working mode not implemented: " + MODE)
 
