@@ -44,10 +44,10 @@ class FhirProvider:
         #self.logger.info(f"Getting {resource_type} with id {resource_id} from {url}")
         response = None
         try:
-            response = self.http_client.get(url)
+            response, errors = self.http_client.get(url)
         except:
             pass
-        return response
+        return response.json()
 
     def generate_new_version(self, resource):
         newVersion = 1
@@ -93,7 +93,7 @@ class FhirProvider:
                 pass
             else:
                 # If nothing changed, do nothing
-                return
+                return None
         # If resource did not exist, create        
         #self.logger.debug(f"Trying to write {resource_type} to {url}")
         errors = []
@@ -107,8 +107,7 @@ class FhirProvider:
         except:
             resource_id = None
             url = f"{url}/{resource_type}"
-        #self.logger.info(f"Uploading {resource_type} with id {resource_id}")
-        
+        self.logger.info(f"Uploading {resource_type} with id {resource_id}")
         # PUT resource to server
         response = None
         try:
@@ -191,10 +190,10 @@ class FhirProvider:
         url = f"{self.server_url}/Provenance?target={target}"
         self.logger.debug(f"Getting Provenance from {url}")
         try:
-            response = self.http_client.get(url)
+            response, errors = self.http_client.get(url)
         except:
             pass
-        return response
+        return response.json()
 
     def handle_provenance(self, provenance, target = ""):
         url = self.server_url + "/Provenance"
@@ -232,7 +231,10 @@ class FhirProvider:
         except:
             self.logger.warning(f"Resource {resource['resourceType']} does not have an id")
             resource_id = None
-        version = {resource['meta']['versionId']}
+        try:
+            version = {resource['meta']['versionId']}
+        except:
+            version = None
         if (version == None or version == 0):
             version = 1
         provenance = {
@@ -271,7 +273,7 @@ class FhirProvider:
             "entity" : [{
                 "role" : "source",
                 "what" : {
-                "reference" : f"{source_server}/{resource['resourceType']}/{resource_id}/_history/{resource['meta']['versionId']}"
+                "reference" : f"{source_server}/{resource['resourceType']}/{resource_id}/_history/{version}"
                 }
             }]
         }

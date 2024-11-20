@@ -27,7 +27,6 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
         print("Error occurred, email sent")
         return
 
-    smm_resources = smm_resources.json()["data"]
     smm_fhir_resources = []
     for resource in smm_resources:
         fhir_resource = {}
@@ -36,17 +35,28 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
         fhir_resource["status"] = "current"
         fhir_resource["docStatus"] = "final"
         fhir_resource["description"] = resource["description"]
-        #fhir_resource["subject"] = {
-        #    "reference": resource["subject"],
-        #    "display": resource["subject"]
-        #}
+        
         try:
-            fhir_resource["author"] = {
-                "reference": resource["author"][0]["primaryDisplay"],
-                "display": resource["author"][0]["primaryDisplay"]
-            }
-        except:
+            if resource["subject"] != None:
+                subject_row_id = resource["subject"][0]["_id"]
+                subject_table_split = subject_row_id.split("_")
+                subject_tabe_id = f"{subject_table_split[1]}_{subject_table_split[2]}"
+                subject, subject_errors = smm_tool_provider.get_row_by_id(subject_tabe_id, subject_row_id)
+                fhir_resource["subject"] = {
+                    "display": subject["Display"],
+                    "reference": subject["Reference"]
+                }
+        except Exception as e:
+            print(f"Error getting subject: {e}")
             pass
+        # TODO: Ignore Author for now. Change in future
+        #try:
+        #    fhir_resource["author"] = {
+        #        "reference": resource["author"][0]["primaryDisplay"],
+        #        "display": resource["author"][0]["primaryDisplay"]
+        #    }
+        #except:
+        #    pass
         fhir_resource["content"] = [
             {
                 "attachment": {
@@ -72,7 +82,8 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
                 response = requests.get(smm_tool_provider.server_url + resource["contentData"][0]["url"])
                 response.raise_for_status()
                 content_base64 = base64.b64encode(response.content).decode('utf-8')
-                fhir_resource["content"][0]["attachment"]["data"] = content_base64
+                #TODO: Upload content to Object Store
+                #fhir_resource["content"][0]["attachment"]["data"] = content_base64
             except requests.RequestException as e:
                 print(f"Error fetching content from {resource['contentData'][0]['url']}: {e}")
 

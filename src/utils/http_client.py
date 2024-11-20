@@ -42,13 +42,23 @@ class HttpClient:
             f" {request.status_code} {request.request.method} {resource_type} {id} ({request.url})"
         )
 
-    def get(self, url):
+    def get(self, url, headers = {'Cache-Control': 'no-cache'}):
         #self.logger.info(f"GET {url}")
-        response = self.http_session.get(url, timeout=self.timeout, headers = {'Cache-Control': 'no-cache'})
-        return response.json()
+        errors = []
+        try:
+            response = self.http_session.get(url, timeout=self.timeout, headers = headers)
+        except Exception as error:
+            self.logger.error(error)
+            self.logger.error(f"[HTTP ERROR] Error in GET to: {url}")
+            return response, [error]
+        if response.status_code not in [200, 201]:
+            #self.logger.error(f"Unsuccessful GET request for {url}" )
+            errors = self.parse_issues(url, response)
+            return response, errors
+        return response, errors
 
     def put(self, url, body):
-        #self.logger.info(f"PUT {url}")
+        self.logger.info(f"PUT {url}")
         errors = []
         try:
             response = self.http_session.put(url, json=body, headers = {'Cache-Control': 'no-cache'})
@@ -57,7 +67,7 @@ class HttpClient:
             self.logger.error(
                 f"[HTTP ERROR] Error in PUT {body['resourceType']} with id {body['id']} to: {url}"
             )
-            return
+            return response, [error]
         if response.status_code not in [200, 201]:
             #self.logger.error(f"Unsuccessful PUT request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
@@ -73,7 +83,7 @@ class HttpClient:
             self.logger.error(
                 f"[HTTP ERROR] Error in POST {body['resourceType']} with id {body['id']} to: {url}"
             )
-            return
+            return response, [error]
         if response.status_code not in [200, 201]:
             #self.logger.error(f"Unsuccessful POST request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
@@ -87,11 +97,11 @@ class HttpClient:
         except Exception as error:
             self.logger.error(error)
             self.logger.error(f"[HTTP ERROR] Error in DELETE to: {url}")
-            return
+            return response, [error]
         if response.status_code not in [200, 201]:
             #self.logger.error(f"Unsuccessful DELETE request for {url}" )
             errors = self.parse_issues(url, response)
-        return errors
+        return response, errors
 
     def parse_issues(self, resource, response):
         errors = []
