@@ -5,7 +5,7 @@ metadata:
   labels:
     eu.gravitate-health.fosps.connector: "true"
 spec:
-  schedule: "0 2 * * *"
+  schedule: "0 3 * * *"
   suspend: false
   jobTemplate:
     spec:
