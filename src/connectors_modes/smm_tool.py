@@ -1,6 +1,7 @@
 import base64
 import os, datetime, json
 from datetime import datetime, timezone
+import uuid
 
 import requests
 
@@ -11,10 +12,11 @@ import utils.mail_client
 
 def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
     smm_server_url = os.getenv("SMM_SERVER_URL")
+    object_storage_url = os.getenv("OBJECT_STORAGE_URL")
     smm_app_id = os.getenv("SMM_APP_ID")
     smm_table_id = os.getenv("SMM_TABLE_ID")
     smm_api_key = os.getenv("SMM_API_KEY")
-    smm_tool_provider = providers.smm_tool_provider.SmmToolProvider(smm_server_url, smm_app_id, smm_table_id, smm_api_key)
+    smm_tool_provider = providers.smm_tool_provider.SmmToolProvider(smm_server_url, object_storage_url, smm_app_id, smm_table_id, smm_api_key)
     
     DESTINATION_SERVER = os.getenv("DESTINATION_SERVER")
     fhir_provider = providers.fhir_provider.FhirProvider(DESTINATION_SERVER)
@@ -29,6 +31,7 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
 
     smm_fhir_resources = []
     for resource in smm_resources:
+        print("____________________ NEW RESOURCE _______________________")
         fhir_resource = {}
         fhir_resource["id"] = resource["_id"].replace("_", "")[0:63]
         fhir_resource["resourceType"] = "DocumentReference"
@@ -77,13 +80,36 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
         fhir_resource["content"][0]["attachment"]["language"]= resource["language"][0]["primaryDisplay"],
         if (resource["isRemote"] == True):
             fhir_resource["content"][0]["attachment"]["url"] = resource["contentURL"]
+        
         elif (resource["isRemote"] == False):
             try:
-                response = requests.get(smm_tool_provider.server_url + resource["contentData"][0]["url"])
+                response, errors = smm_tool_provider.get_file_from_budibase(resource["contentData"][0]["url"])
                 response.raise_for_status()
-                content_base64 = base64.b64encode(response.content).decode('utf-8')
+                #content_base64 = base64.b64encode(response.content).decode('utf-8')
                 #TODO: Upload content to Object Store
                 #fhir_resource["content"][0]["attachment"]["data"] = content_base64
+                try:
+                    file_extension = fhir_resource["content"][0]["attachment"]["contentType"].split("/")[1]
+                except:
+                    file_extension = response.headers["Content-Type"].split("/")[1]
+                random_file_name = f"{fhir_resource['id']}-{str(uuid.uuid4())}"
+                file_name = f"{random_file_name}.{file_extension}"
+                response_create_object, errors = smm_tool_provider.create_object_in_bucket(response.content,{
+                    "resourceName": file_name,
+                    #"author": "X-Plain Patient Education",
+                    "description" : fhir_resource["description"],
+                        "attachment" : {
+                            "contentType" : response.headers["Content-Type"], 
+                            "language" : fhir_resource["content"][0]["attachment"]["language"], 
+                            #"url" : "hello.com",  
+                            #"size" : "", 
+                            #"hash" : "ADE1234FE", 
+                            #"title" : "How to take Xarelto", 
+                            "creation" : datetime.now(timezone.utc).isoformat(),
+                    }
+                })
+                fhir_resource["content"][0]["attachment"]["url"] = f"{object_storage_url}/resource/{file_name}"
+                fhir_resource["content"][0]["attachment"]["contentType"] = response.headers["Content-Type"].split(";")[0]
             except requests.RequestException as e:
                 print(f"Error fetching content from {resource['contentData'][0]['url']}: {e}")
 

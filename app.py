@@ -109,6 +109,7 @@ if __name__ == "__main__":
     elif MODE == Connector_Modes.SMM_TOOL:
         logger.info("  SMM_SERVER_URL: " + os.getenv("SMM_SERVER_URL"))
         logger.info("  DESTINATION_SERVER: " + os.getenv("DESTINATION_SERVER"))
+        logger.info("  OBJECT_STORAGE_URL: " + os.getenv("OBJECT_STORAGE_URL"))
         smm_tool.connector_smm_tool(mail_client)
     else:
         logger.error("Connector working mode not implemented: " + MODE)

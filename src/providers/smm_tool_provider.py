@@ -1,14 +1,16 @@
-import git
+import json
 import logging
 from utils.http_client import HttpClient
 
 class SmmToolProvider:
     
-    def __init__(self, server_url, app_id, table_id, api_key) -> None:
+    def __init__(self, server_url, object_storage_url, app_id, table_id, api_key) -> None:
         logging.getLogger('git').setLevel(logging.INFO)
         logger = logging.getLogger(__name__)
         self.logger = logger
         self.http_client = HttpClient()
+        
+        self.bucket_storage_url = object_storage_url
         
         self.server_url = server_url
         self.app_id = app_id
@@ -41,4 +43,27 @@ class SmmToolProvider:
             return response.json()["data"], errors
         except Exception as e:
             self.logger.error(f"Error getting row: {e}")
+            return None, str(e)
+    
+    def get_file_from_budibase(self, file_endpoint):
+        self.logger.info(f"Getting file from Budibase {file_endpoint}")
+        try:
+            headers = {
+                "x-budibase-app-id": self.app_id,
+                "x-budibase-api-key": self.api_key,
+            }
+            response, errors = self.http_client.get(url=f"{self.server_url}{file_endpoint}", headers=headers)            
+            return response, errors
+        except Exception as e:
+            self.logger.error(f"Error getting file from Budibase: {e}")
+            return None, str(e)
+    
+    def create_object_in_bucket(self, file, file_info):
+        self.logger.info(f"Creating object in bucket {self.bucket_storage_url}")
+        try:
+            files = {"file": (file_info["resourceName"], file, 'application/pdf'), "fileInfo": (None, json.dumps(file_info), 'application/json')}
+            response, errors = self.http_client.post_form_data(url=self.bucket_storage_url + "/create", files=files, data=file_info)
+            return response, errors
+        except Exception as e:
+            self.logger.error(f"Error creating object in bucket: {e}")
             return None, str(e)

@@ -21,9 +21,11 @@ spec:
             - name: CONNECTOR_MODE
               value: "SMM_TOOL"
             - name: DESTINATION_SERVER
-              value: "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir"
+              value: "https://fosps.gravitatehealth.eu/epi/api/fhir"
             - name: SMM_SERVER_URL
               value: https://budibase.gravitate-health.lst.tfo.upm.es
+            - name: OBJECT_STORAGE_URL
+              value: https://fosps.gravitatehealth.eu/smm
             - name: SMM_APP_ID
               value: app_dev_7944ab7d13894779b8c6cb85df08305e
             - name: SMM_TABLE_ID

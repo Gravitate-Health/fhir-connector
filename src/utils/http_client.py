@@ -32,6 +32,8 @@ class HttpClient:
         self, request: requests.Response, *args, **kwargs
     ) -> None:
         id = ""
+        if(request.encoding == None):
+            request.encoding = 'utf-8'
         try:
             if (request.json() != None):
                 resource_type = request.json()["resourceType"]
@@ -73,7 +75,7 @@ class HttpClient:
             errors = self.parse_issues(body, response)
         return response, errors
 
-    def post(self, url, body, headers = {'Cache-Control': 'no-cache'}):
+    def post(self, url, body = {}, headers = {'Cache-Control': 'no-cache'}):
         #self.logger.info(f"POST {url}")
         errors = []
         try:
@@ -87,6 +89,20 @@ class HttpClient:
         if response.status_code not in [200, 201]:
             #self.logger.error(f"Unsuccessful POST request for {body['resourceType']}" )
             errors = self.parse_issues(body, response)
+        return response, errors
+
+    def post_form_data(self, url, data, files, body = {}):
+        #self.logger.info(f"POST form-data {url}")
+        errors = []
+        try:
+            response = self.http_session.post(url, data=data, files=files, json=body)
+        except Exception as error:
+            self.logger.error(error)
+            self.logger.error(f"[HTTP ERROR] Error in POST form-data to: {url}")
+            return response, [error]
+        if response.status_code not in [200, 201]:
+            #self.logger.error(f"Unsuccessful POST request for {url}" )
+            errors = self.parse_issues(url, response)
         return response, errors
 
     def delete(self, url):

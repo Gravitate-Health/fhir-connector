@@ -16,3 +16,5 @@ spec:
               value: "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir"
             - name: SMM_SERVER_URL
               value: https://budibase.gravitate-health.lst.tfo.upm.es
+            - name: OBJECT_STORAGE_URL
+              value: https://gravitate-health.lst.tfo.upm.es/smm
