@@ -16,7 +16,7 @@ spec:
       serviceAccountName: focusing-manager-serviceaccount
       containers:
       - name: fhir-connector-api
-        image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+        image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:v0.40.0
         resources: {}
         imagePullPolicy: Always
         env:

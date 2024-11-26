@@ -11,6 +11,7 @@ spec:
         spec:
           containers:
           - name: fhir-connector-git-epi
+            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
             env:
             - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
               value: "master"

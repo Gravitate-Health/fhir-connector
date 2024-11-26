@@ -10,6 +10,8 @@ spec:
     spec:
       containers:
       - name: fhir-connector-api
+        image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+        resources: {}
         env:
         - name: ENVIRONMENT
           value: dev

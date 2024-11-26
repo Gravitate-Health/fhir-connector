@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
           - name: fhir-connector-fhir-sync-hl7
-            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:v0.40.0
             env:
             - name: CONNECTOR_MODE
               value: "HAPI_FHIR_SERVER_SYNC"

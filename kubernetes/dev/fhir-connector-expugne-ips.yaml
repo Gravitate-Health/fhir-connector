@@ -11,6 +11,7 @@ spec:
         spec:
           containers:
           - name: fhir-connector-expugne-ips
+            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
             env:
             - name: DESTINATION_SERVER
               value: "https://gravitate-health.lst.tfo.upm.es/ips/api/fhir"
