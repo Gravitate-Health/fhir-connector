@@ -59,7 +59,7 @@ class SmmToolProvider:
             return None, str(e)
     
     def create_object_in_bucket(self, file, file_info):
-        self.logger.info(f"Creating object {file_info["resourceName"]} in object storage")
+        self.logger.info(f"Creating object {file_info['resourceName']} in object storage")
         try:
             files = {"file": (file_info["resourceName"], file, 'application/pdf'), "fileInfo": (None, json.dumps(file_info), 'application/json')}
             response, errors = self.http_client.post_form_data(url=self.bucket_storage_url + "/create", files=files, data=file_info)
