@@ -18,7 +18,7 @@ class SmmToolProvider:
         self.api_key = api_key
     
     def get_all_smm(self):
-        self.logger.info(f"Getting all SMM from {self.server_url}")
+        #self.logger.info(f"Getting all SMM from {self.server_url}")
         try:
             rows_url = f"{self.server_url}/api/public/v1/tables/{self.table_id}/rows/search"
             headers = {
@@ -32,7 +32,7 @@ class SmmToolProvider:
             return None, str(e)
 
     def get_row_by_id(self, table_id, row_id):
-        self.logger.info(f"Getting row {row_id} from table {table_id} from {self.server_url}")
+        #self.logger.info(f"Getting row {row_id} from table {table_id} from {self.server_url}")
         try:
             row_url = f"{self.server_url}/api/public/v1/tables/{table_id}/rows/{row_id}"
             headers = {
@@ -46,7 +46,7 @@ class SmmToolProvider:
             return None, str(e)
     
     def get_file_from_budibase(self, file_endpoint):
-        self.logger.info(f"Getting file from Budibase {file_endpoint}")
+        #self.logger.info(f"Getting file from Budibase {file_endpoint}")
         try:
             headers = {
                 "x-budibase-app-id": self.app_id,
@@ -59,7 +59,7 @@ class SmmToolProvider:
             return None, str(e)
     
     def create_object_in_bucket(self, file, file_info):
-        self.logger.info(f"Creating object in bucket {self.bucket_storage_url}")
+        self.logger.info(f"Creating object {file_info["resourceName"]} in object storage")
         try:
             files = {"file": (file_info["resourceName"], file, 'application/pdf'), "fileInfo": (None, json.dumps(file_info), 'application/json')}
             response, errors = self.http_client.post_form_data(url=self.bucket_storage_url + "/create", files=files, data=file_info)

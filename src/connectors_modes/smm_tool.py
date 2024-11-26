@@ -1,8 +1,7 @@
 import base64
 import os, datetime, json
 from datetime import datetime, timezone
-import uuid
-
+import copy
 import requests
 
 import providers.smm_tool_provider
@@ -63,6 +62,9 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
         fhir_resource["content"] = [
             {
                 "attachment": {
+                    "contentType": "",
+                    "language": "",
+                    "url": ""
                 }
             }
         ]
@@ -82,38 +84,33 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
             fhir_resource["content"][0]["attachment"]["url"] = resource["contentURL"]
         
         elif (resource["isRemote"] == False):
-            try:
-                response, errors = smm_tool_provider.get_file_from_budibase(resource["contentData"][0]["url"])
-                response.raise_for_status()
-                #content_base64 = base64.b64encode(response.content).decode('utf-8')
-                #TODO: Upload content to Object Store
-                #fhir_resource["content"][0]["attachment"]["data"] = content_base64
+            content_counter = 0
+            for content in resource["contentData"]:
                 try:
-                    file_extension = fhir_resource["content"][0]["attachment"]["contentType"].split("/")[1]
-                except:
-                    file_extension = response.headers["Content-Type"].split("/")[1]
-                random_file_name = f"{fhir_resource['id']}-{str(uuid.uuid4())}"
-                file_name = f"{random_file_name}.{file_extension}"
-                response_create_object, errors = smm_tool_provider.create_object_in_bucket(response.content,{
-                    "resourceName": file_name,
-                    #"author": "X-Plain Patient Education",
-                    "description" : fhir_resource["description"],
-                        "attachment" : {
-                            "contentType" : response.headers["Content-Type"], 
-                            "language" : fhir_resource["content"][0]["attachment"]["language"], 
-                            #"url" : "hello.com",  
-                            #"size" : "", 
-                            #"hash" : "ADE1234FE", 
-                            #"title" : "How to take Xarelto", 
-                            "creation" : datetime.now(timezone.utc).isoformat(),
-                    }
-                })
-                fhir_resource["content"][0]["attachment"]["url"] = f"{object_storage_url}/resource/{file_name}"
-                fhir_resource["content"][0]["attachment"]["contentType"] = response.headers["Content-Type"].split(";")[0]
-            except requests.RequestException as e:
-                print(f"Error fetching content from {resource['contentData'][0]['url']}: {e}")
-
-            #fhir_resource["content"][0]["attachment"]["data"] =         
+                    if(content_counter > 0):
+                        fhir_resource["content"].append(copy.deepcopy(fhir_resource["content"][0]))
+                    response, errors = smm_tool_provider.get_file_from_budibase(content["url"])
+                    response.raise_for_status()
+                    file_name = content["key"].split("/")[2]
+                    response_create_object, errors = smm_tool_provider.create_object_in_bucket(response.content,{
+                        "resourceName": file_name,
+                        #"author": "X-Plain Patient Education",
+                        "description" : fhir_resource["description"],
+                            "attachment" : {
+                                "contentType" : response.headers["Content-Type"], 
+                                "language" : fhir_resource["content"][0]["attachment"]["language"], 
+                                #"url" : "hello.com",  
+                                #"size" : "", 
+                                #"hash" : "ADE1234FE", 
+                                #"title" : "How to take Xarelto", 
+                                "creation" : datetime.now(timezone.utc).isoformat(),
+                        }
+                    })
+                    fhir_resource["content"][content_counter]["attachment"]["url"] = f"{object_storage_url}/resource/{file_name}"
+                    fhir_resource["content"][content_counter]["attachment"]["contentType"] = response.headers["Content-Type"].split(";")[0]
+                except requests.RequestException as e:
+                    print(f"Error fetching content from {resource['contentData'][content_counter]['url']}: {e}")
+                content_counter += 1
         smm_fhir_resources.append(fhir_resource)
 
     for fhir_resource in smm_fhir_resources:
