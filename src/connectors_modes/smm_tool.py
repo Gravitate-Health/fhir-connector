@@ -115,6 +115,6 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
 
     for fhir_resource in smm_fhir_resources:
         error = fhir_provider.write_fhir_resource_to_server(fhir_resource, DESTINATION_SERVER)
-
+    fhir_provider.run_reindex_job()
     mail_client.create_message(errors)
     return smm_fhir_resources, errors

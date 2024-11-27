@@ -31,6 +31,7 @@ def connector_fhir_server_sync(mail_client: utils.mail_client.Mail_client):
                 error = fhir_provider_destination.write_fhir_resource_to_server(resource["resource"], MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER)
                 if(error):
                     errors.append(error)
+            fhir_provider_destination.run_reindex_job()
         else:
             logger.warn("No resources found")
 

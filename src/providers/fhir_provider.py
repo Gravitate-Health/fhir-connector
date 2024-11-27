@@ -330,3 +330,20 @@ class FhirProvider:
         except:
             pass
         return response
+    
+    def run_reindex_job(self):
+        # first mark all for reindex
+        mark_url = f"{self.server_url}/$mark-all-resources-for-reindexing"
+        self.logger.info(f"Marking all for reindex {mark_url}...")
+        try:
+            response = self.http_client.post(mark_url)
+        except:
+            pass
+        
+        reindex_url = f"{self.server_url}/$reindex"
+        self.logger.info(f"Reindexing {reindex_url}...")
+        try:
+            response, errors = self.http_client.post(reindex_url)
+        except:
+            pass
+        return

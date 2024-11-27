@@ -109,7 +109,7 @@ def update_server_from_git_repo(fhir_provider, fhir_config, resources_list, whit
             error = fhir_provider.write_fhir_resource_to_server(resource, MODE_GIT_FSH_SOURCE_REPO)
             if(error):
                 errors_object[resource_type].append(error)
-    
+    fhir_provider.run_reindex_job()
     return errors_object
 
 def read_fhir_server_config( type: str):
