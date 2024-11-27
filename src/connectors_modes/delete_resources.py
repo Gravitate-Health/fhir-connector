@@ -1,7 +1,7 @@
 import os
 import logging
 
-import providers.hl7_git_provider
+import providers.fhir_provider
 import utils.mail_client
 
 logger = logging.getLogger(__name__)
