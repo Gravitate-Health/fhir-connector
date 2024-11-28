@@ -75,11 +75,14 @@ class HttpClient:
             errors = self.parse_issues(body, response)
         return response, errors
 
-    def post(self, url, body = {}, headers = {'Cache-Control': 'no-cache'}):
-        #self.logger.info(f"POST {url}")
+    def post(self, url, body = None, headers = {'Cache-Control': 'no-cache'}):
+        self.logger.info(f"POST {url}")
         errors = []
         try:
-            response = self.http_session.post(url, json=body, headers = headers)
+            if(body == None):
+                response = self.http_session.post(url, headers = headers)
+            else:
+                response = self.http_session.post(url, json=body, headers = headers)
         except Exception as error:
             self.logger.error(error)
             self.logger.error(
