@@ -14,6 +14,10 @@ spec:
           annotations:
             sidecar.istio.io/inject: "false"
         spec:
+          securityContext:
+            sysctls:
+            - name: fs.inotify.max_user_watches
+              value: "524288"
           containers:
           - name: fhir-connector-git-epi
             image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:v0.40.0
