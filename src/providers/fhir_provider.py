@@ -110,10 +110,21 @@ class FhirProvider:
         self.logger.info(f"Uploading {resource_type} with id {resource_id}")
         # PUT resource to server
         response = None
+        error = None
         try:
             response, error = self.http_client.put(url, resource)
         except Exception as e:
-            print(e)
+            self.logger.error(f"Error al poner recurso en el servidor: {str(e)}")
+            # Si hubo un error, agregarlo a la lista de errores y retornar
+            errors.append(str(e))
+            return errors
+        
+        # Verificar que response no sea None antes de acceder a status_code
+        if response is None:
+            self.logger.error(f"No se recibió respuesta del servidor al intentar PUT en {url}")
+            errors.append(f"No se recibió respuesta del servidor al intentar PUT en {url}")
+            return errors
+            
         status_code = response.status_code
         if(error and len(error) > 0):
             errors.append(error)
@@ -144,7 +155,7 @@ class FhirProvider:
             try:
                 target = provenance["target"][0]["reference"]
                 provenance_response, provenance_errors = self.handle_provenance(provenance, target)
-                if (len(provenance_errors) > 0):
+                if (provenance_errors and len(provenance_errors) > 0):
                     errors.extend(provenance_errors)
             except Exception as e:
                 self.logger.error(e)
@@ -212,12 +223,22 @@ class FhirProvider:
         
         errors = []
         response = None
+        error = None
         if (len(provenances_retrieved) > 0):
             return response, errors
         try:
             response, error = self.http_client.post(url, provenance)
-        except:
-            pass
+        except Exception as e:
+            self.logger.error(f"Error al crear provenance: {str(e)}")
+            errors.append(str(e))
+            return response, errors
+        
+        # Verificar que response no sea None antes de acceder a status_code
+        if response is None:
+            self.logger.error(f"No se recibió respuesta del servidor al intentar POST en {url}")
+            errors.append(f"No se recibió respuesta del servidor al intentar POST en {url}")
+            return response, errors
+            
         status_code = response.status_code
         if(error):
             errors.append(error)
