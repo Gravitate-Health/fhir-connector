@@ -8,8 +8,8 @@ IPS_SERVER = os.getenv("DESTINATION_SERVER")
 IPS_WHITELIST = os.getenv("IPS_WHITELIST")
 
 IPS_ORDER_LIST = [
-    "Patient",
     "Practitioner",
+    "Patient",
     "Condition",
     "Medication",
     "Observation",
