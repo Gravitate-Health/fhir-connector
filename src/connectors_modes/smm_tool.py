@@ -9,6 +9,94 @@ import providers.fhir_provider
 import utils.mail_client
 
 
+def set_document_metadata(fhir_resource, content_data, resource, content_counter=0):
+    """
+    Helper function to set category, extensions, and identifier for DocumentReference
+    """
+    # Inicializar category si no existe
+    if "category" not in fhir_resource:
+        fhir_resource["category"] = []
+    
+    categoryList = content_data.get("category", [])
+    print(f"DEBUG: Processing categories: {categoryList}")
+    
+    # Si no es una lista, convertirla en lista
+    if not isinstance(categoryList, list):
+        categoryList = [categoryList] if categoryList else []
+    
+    for category_item in categoryList:
+        if not category_item:
+            continue
+            
+        category_name = "Unknown"
+        if isinstance(category_item, dict):
+            category_name = category_item.get("primaryDisplay", "Unknown")
+        elif isinstance(category_item, str):
+            category_name = category_item
+        else:
+            print(f"DEBUG: Unexpected category format: {category_item}")
+            continue
+            
+        print(f"DEBUG: Setting category: {category_name}")
+        categoryCode = "Unknown"
+        if category_name == "Adverse Effects Management":
+            categoryCode = "AE"
+        elif category_name == "Medication and Disease Management":
+            categoryCode = "MDM"
+        elif category_name == "Medication Usage":
+            categoryCode = "MU"
+        elif category_name == "Other Information":
+            categoryCode = "OTHER"
+        elif category_name == "Storage":
+            categoryCode = "STO"
+        elif category_name == "Support Administration":
+            categoryCode = "SA"
+            
+        # Evitar categorías duplicadas
+        category_exists = False
+        for existing_cat in fhir_resource["category"]:
+            if existing_cat["coding"][0]["code"] == categoryCode:
+                category_exists = True
+                break
+                
+        if not category_exists:
+            fhir_resource["category"].append({
+                "coding": [
+                    {
+                        "system": "http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/DocumentReferenceCategory",
+                        "code": categoryCode,
+                    }
+                ]
+            })
+            print(f"DEBUG: Added category code: {categoryCode}")
+
+    valueCode = "URL"
+    if resource.get("contentMIMEtype") and len(resource["contentMIMEtype"]) > 0:
+        mime_type = resource["contentMIMEtype"][0]["primaryDisplay"]
+        if mime_type == "image/png":
+            valueCode = "image"
+        elif mime_type == "application/pdf":
+            valueCode = "document"
+        elif mime_type == "text/plain":
+            valueCode = "text"
+        elif "video" in mime_type:
+            valueCode = "video"
+
+    fhir_resource["content"][content_counter]["attachment"]["extension"] = [
+        {
+            "url": "http://hl7.eu/fhir/ig/gravitate-health/StructureDefinition/VisualizationMethod",
+            "valueCode": valueCode 
+        }
+    ]
+    fhir_resource["content"][content_counter]["attachment"]["title"] = content_data.get("description", "No title available")
+    fhir_resource["identifier"] = [
+        {
+            "system": "http://example.org",
+            "value": fhir_resource["id"]
+        }
+    ]
+
+
 def compare_document_references(existing_resource, new_resource):
     """
     Compara dos recursos DocumentReference para determinar si hay cambios significativos
@@ -98,19 +186,23 @@ def compare_document_references(existing_resource, new_resource):
 
 
 def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
+    print("DEBUG: Starting connector_smm_tool function")
     smm_server_url = os.getenv("SMM_SERVER_URL")
     object_storage_url = os.getenv("OBJECT_STORAGE_URL")
     smm_app_id = os.getenv("SMM_APP_ID")
     smm_table_id = os.getenv("SMM_TABLE_ID")
     smm_api_key = os.getenv("SMM_API_KEY")
+    print(f"DEBUG: Environment variables loaded - SMM_SERVER_URL: {smm_server_url is not None}")
+    
     smm_tool_provider = providers.smm_tool_provider.SmmToolProvider(smm_server_url, object_storage_url, smm_app_id, smm_table_id, smm_api_key)
     
     DESTINATION_SERVER = os.getenv("DESTINATION_SERVER")
     fhir_provider = providers.fhir_provider.FhirProvider(DESTINATION_SERVER)
-    
+    print(f"DEBUG: Providers initialized successfully")
 
     ## TODO de-hardcode this
     smm_resources, errors = smm_tool_provider.get_all_smm()
+    print(f"DEBUG: Retrieved {len(smm_resources) if smm_resources else 0} SMM resources")
     if smm_resources is None:
         mail_client.create_message(errors)
         print("Error occurred, email sent")
@@ -126,6 +218,12 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
         fhir_resource["status"] = "current"
         fhir_resource["docStatus"] = "final"
         fhir_resource["description"] = resource.get("description", "No description available")
+        fhir_resource["meta"] = {
+            "profile": [
+                "http://hl7.eu/fhir/ig/gravitate-health/StructureDefinition/AdditionalSupportMaterial"
+            ]
+        }
+        fhir_resource["category"] = []
         
         try:
             # Verificar si 'subject' existe y no es None
@@ -260,10 +358,39 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
             
         # Manejar contenido remoto o local de forma segura
         try:
+            print(f"DEBUG: Processing content - isRemote: {resource.get('isRemote')}")
+            print(f"DEBUG: Resource contentData: {resource.get('contentData', 'NOT_FOUND')}")
+            print(f"DEBUG: Resource contentURL: {resource.get('contentURL', 'NOT_FOUND')}")
+            
             if resource.get("isRemote") is True:
+                print("DEBUG: Processing remote content")
                 if "contentURL" in resource:
                     fhir_resource["content"][0]["attachment"]["url"] = resource["contentURL"]
+                    print(f"DEBUG: Set remote URL: {resource['contentURL']}")
+                    
+                    # Para contenido remoto, intentar obtener metadatos de diferentes fuentes
+                    content_data = None
+                    if "contentData" in resource and resource["contentData"] is not None and len(resource["contentData"]) > 0:
+                        content_data = resource["contentData"][0]
+                        print(f"DEBUG: Found contentData for remote: {content_data}")
+                    else:
+                        # Si no hay contentData, crear uno básico usando información del recurso principal
+                        print("DEBUG: No contentData found, creating basic metadata from main resource")
+                        content_data = {
+                            "category": resource.get("category", "Other Information"),
+                            "description": resource.get("description", "No title available")
+                        }
+                        print(f"DEBUG: Created basic content_data: {content_data}")
+                    
+                    if content_data:
+                        print(f"DEBUG: Category found: {content_data.get('category', 'Unknown')}")
+                        # Usar la función helper para establecer metadatos
+                        set_document_metadata(fhir_resource, content_data, resource, 0)
+                        print(f"DEBUG: Applied metadata for remote content")
+                    else:
+                        print("DEBUG: No content data available for remote content")
             elif resource.get("isRemote") is False:
+                print("DEBUG: Processing local content")
                 if "contentData" in resource and resource["contentData"] is not None:
                     content_counter = 0
                     for content in resource["contentData"]:
@@ -276,25 +403,28 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
                                 file_name = content["key"].split("/")[2]
                                 response_create_object, errors = smm_tool_provider.create_object_in_bucket(response.content,{
                                     "resourceName": file_name,
-                                    #"author": "X-Plain Patient Education",
                                     "description" : fhir_resource["description"],
                                         "attachment" : {
                                             "contentType" : response.headers.get("Content-Type", "application/octet-stream"), 
                                             "language" : fhir_resource["content"][0]["attachment"].get("language", ""), 
-                                            #"url" : "hello.com",  
-                                            #"size" : "", 
-                                            #"hash" : "ADE1234FE", 
-                                            #"title" : "How to take Xarelto", 
                                             "creation" : datetime.now(timezone.utc).isoformat(),
                                     }
                                 })
+                                
+                                # Configurar URL y contentType para contenido local
                                 fhir_resource["content"][content_counter]["attachment"]["url"] = f"{object_storage_url}/resource/{file_name}"
-                                fhir_resource["content"][content_counter]["attachment"]["contentType"] = response.headers.get("Content-Type", "application/octet-stream").split(";")[0]
+                                fhir_resource["content"][content_counter]["attachment"]["contentType"] = resource["contentMIMEtype"][0]["primaryDisplay"]
+                                
+                                # Usar la función helper para establecer metadatos
+                                set_document_metadata(fhir_resource, content, resource, content_counter)
+                                print(f"DEBUG: Applied metadata for local content {content_counter}")
                         except requests.RequestException as e:
                             print(f"Error fetching content from {content.get('url', 'unknown URL')}: {e}")
                         except Exception as e:
                             print(f"Error processing content: {e}")
                         content_counter += 1
+            else:
+                print(f"DEBUG: Unknown isRemote value: {resource.get('isRemote')}")
         except Exception as e:
             print(f"Error processing content (isRemote/contentData): {e}")
             pass
@@ -302,18 +432,32 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
 
     for fhir_resource in smm_fhir_resources:
         # Buscar si ya existe un DocumentReference con el mismo ID
-        existing_resource = fhir_provider.search_document_reference_by_id(fhir_resource["id"])
-        
+        existing_resource = None
+        try:
+            existing_resource = fhir_provider.get_resource_by_id("DocumentReference", fhir_resource["id"])
+        except Exception as e:
+            print(f"DocumentReference with ID {fhir_resource['id']} not found: {e}")
+
         # Si no se encuentra por ID, intentar buscar por descripción como respaldo
         if not existing_resource and fhir_resource.get("description"):
-            existing_resource = fhir_provider.search_document_reference_by_criteria(
-                description=fhir_resource["description"]
-            )
+            # Buscar todos los DocumentReference y filtrar por descripción
+            try:
+                all_document_refs = fhir_provider.get_fhir_all_resource_type_from_server("DocumentReference")
+                for doc_ref_entry in all_document_refs:
+                    doc_ref = doc_ref_entry.get("resource", {})
+                    if doc_ref.get("description") == fhir_resource["description"]:
+                        existing_resource = doc_ref
+                        break
+            except Exception as e:
+                print(f"Error finding DocumentReference by description: {e}")
             if existing_resource:
                 print(f"Found existing DocumentReference by description: '{fhir_resource['description']}'")
         
         if existing_resource:
-            print(f"DocumentReference with id {existing_resource['id']} already exists. Checking for updates...")
+            if not existing_resource.get('id'):
+                print(f"WARNING: existing_resource found but missing 'id'. Resource content: {existing_resource}")
+            existing_id = existing_resource.get('id', 'unknown')
+            print(f"DocumentReference with id {existing_id} already exists. Updating...")
             
             # Estrategia especial: si el nuevo recurso no tiene subject pero el existente sí,
             # preservar el subject existente para evitar perder información válida
@@ -321,43 +465,24 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
                 print("Preserving existing subject as new resource processing failed to generate one")
                 fhir_resource["subject"] = existing_resource["subject"]
             
-            # Usar la función de comparación mejorada
-            needs_update, changes = compare_document_references(existing_resource, fhir_resource)
+            # Si encontramos el recurso por descripción, usar el ID existente
+            if existing_resource.get("id") and existing_resource["id"] != fhir_resource["id"]:
+                print(f"Using existing ID {existing_resource['id']} instead of {fhir_resource['id']}")
+                fhir_resource["id"] = existing_resource["id"]
             
-            # Filtrar cambios que son realmente regresiones (perder información válida)
-            filtered_changes = []
-            should_update = False
-            
-            for change in changes:
-                # Evitar actualizaciones que eliminan subject válido
-                if "Subject" in change and "-> 'None'" in change:
-                    print(f"Skipping potentially regressive change: {change}")
-                    continue
-                else:
-                    filtered_changes.append(change)
-                    should_update = True
-            
-            if should_update and filtered_changes:
-                print(f"Significant changes detected for DocumentReference with id {existing_resource['id']}:")
-                for change in filtered_changes:
-                    print(f"  - {change}")
-                
-                # Si encontramos el recurso por descripción, usar el ID existente
-                if existing_resource["id"] != fhir_resource["id"]:
-                    print(f"Using existing ID {existing_resource['id']} instead of {fhir_resource['id']}")
-                    fhir_resource["id"] = existing_resource["id"]
-                
-                # Preservar metadatos del recurso existente si están disponibles
-                if "meta" in existing_resource:
-                    fhir_resource["meta"] = existing_resource["meta"]
-                
-                print(f"Updating DocumentReference with id {existing_resource['id']}")
-                error = fhir_provider.write_fhir_resource_to_server(fhir_resource, DESTINATION_SERVER)
-            else:
-                print(f"No significant changes detected for DocumentReference with id {existing_resource['id']}. Skipping update.")
+            # Preservar metadatos del recurso existente si están disponibles
+            if "meta" in existing_resource:
+                fhir_resource["meta"] = existing_resource["meta"]
+
+        
+            print(f"Resulting resource after merging: {json.dumps(fhir_resource, indent=2)}")
+
+            print(f"Updating DocumentReference with id {existing_id}")
+            error = fhir_provider.write_fhir_resource_to_server(fhir_resource, DESTINATION_SERVER)
         else:
             print(f"Creating new DocumentReference with id {fhir_resource['id']}")
             error = fhir_provider.write_fhir_resource_to_server(fhir_resource, DESTINATION_SERVER)
+    
     fhir_provider.run_reindex_job()
     mail_client.create_message(errors)
     return smm_fhir_resources, errors

@@ -41,10 +41,13 @@ class FhirProvider:
 
     def get_resource_by_id(self, resource_type, resource_id):
         url = f"{self.server_url}/{resource_type}/{resource_id}"
+
+        print(f"Getting from {url}...")
         #self.logger.info(f"Getting {resource_type} with id {resource_id} from {url}")
         response = None
         try:
             response, errors = self.http_client.get(url)
+            print(f"Response: {response.json()}")
         except:
             pass
         return response.json()
