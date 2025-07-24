@@ -65,6 +65,7 @@ def set_document_metadata(fhir_resource, content_data, resource, content_counter
                     {
                         "system": "http://hl7.eu/fhir/ig/gravitate-health/CodeSystem/DocumentReferenceCategory",
                         "code": categoryCode,
+                        "display": category_name
                     }
                 ]
             })
