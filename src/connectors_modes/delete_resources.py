@@ -26,5 +26,9 @@ def delete_all_resources(mail_client: utils.mail_client.Mail_client):
 
     response = fhir_provider.expunge_server()
     if (mail_client != None):
-        mail_client.create_message(response[0].json())
+        logger.info("Expunge response:")
+        logger.info(response)
+        if response[0].status_code != 200:
+            logger.info("Errors found, sending email")
+            mail_client.create_message(response[0].json())
         logger.info("Email sent")

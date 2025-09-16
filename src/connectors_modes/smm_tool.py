@@ -205,8 +205,11 @@ def connector_smm_tool(mail_client: utils.mail_client.Mail_client):
     smm_resources, errors = smm_tool_provider.get_all_smm()
     print(f"DEBUG: Retrieved {len(smm_resources) if smm_resources else 0} SMM resources")
     if smm_resources is None:
-        mail_client.create_message(errors)
-        print("Error occurred, email sent")
+        print("Error occurred fetching SMM resources")
+        print(errors)
+        if mail_client != None:
+            mail_client.create_message(errors)
+            print("Error occurred, email sent")
         return
 
     smm_fhir_resources = []

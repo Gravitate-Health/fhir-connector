@@ -63,8 +63,10 @@ def connector_git_fsh(mail_client: utils.mail_client.Mail_client):
             sliced_resources.append(resource)
     errors = update_server_from_git_repo(fhir_provider, config, sliced_resources)
 
-    mail_client.create_message(errors)
-    print("Email sent")
+    if errors:
+        mail_client.create_message(errors)
+        print("Email sent")
+
     return fhir_resources, errors
 
 def read_fhir_resource_from_file(path):

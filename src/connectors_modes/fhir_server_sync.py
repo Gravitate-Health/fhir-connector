@@ -36,6 +36,8 @@ def connector_fhir_server_sync(mail_client: utils.mail_client.Mail_client):
             logger.warn("No resources found")
 
     if (mail_client != None):
-        mail_client.create_message(errors)
-        logger.info("Email sent")
+        if errors:
+            logger.info("Errors found, sending email")
+            mail_client.create_message(errors)
+            logger.info("Email sent")
     return resources, errors
