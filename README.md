@@ -208,6 +208,7 @@ Authors and history
 ---------------------------
 - Guillermo Mejías ([@gmej](https://github.com/gmej))
 - Isabel Varona ([@isabelvato](https://github.com/isabelvato))
+- Alejandro Alonso ([@aalonsolopez](https://github.com/aalonsolopez))
 
 Acknowledgments
 ---------------------------
