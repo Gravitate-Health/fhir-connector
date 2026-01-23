@@ -16,7 +16,7 @@ spec:
         spec:
           containers:
           - name: fhir-connector-git-ips
-            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:v0.40.0
+            image: ghcr.io/gravitate-health/fhir-connector:v0.40.0
             env:
             - name: CONNECTOR_MODE
               value: "GIT_FSH"

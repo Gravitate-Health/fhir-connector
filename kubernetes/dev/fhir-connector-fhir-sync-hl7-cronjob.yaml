@@ -11,7 +11,7 @@ spec:
         spec:
           containers:
           - name: fhir-connector-fhir-sync-hl7
-            image: gravitate-registry.cr.de-fra.ionos.com/fhir-connector:latest
+            image: ghcr.io/gravitate-health/fhir-connector:latest
             env:
             - name: DESTINATION_SERVER
               value: "https://gravitate-health.lst.tfo.upm.es/epi/api/fhir"
