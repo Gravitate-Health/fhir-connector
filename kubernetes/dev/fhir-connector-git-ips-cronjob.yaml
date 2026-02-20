@@ -16,4 +16,4 @@ spec:
             - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
               value: "master"
             - name: DESTINATION_SERVER
-              value: "https://gravitate-health.lst.tfo.upm.es/ips/api/fhir"
+              value: "http://fhir-server-ips:8080/api/fhir"

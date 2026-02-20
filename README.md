@@ -108,7 +108,7 @@ data:
 |---------------------------- |-------------------------------------------------------------	|---------------------------------------	          |
 | CONNECTOR_MODE 	            | Working mode of the connector                               	| GIT_FSH, HAPI_FHIR_SERVER_SYNC, FHIR_SERVER_PROXY 	    |
 | SOURCE_SERVER_LIST          | ["https://fhir-server1.com", "https://fhir-server2.com"]     	|                                       	          |
-| DESTINATION_SERVER        	| https://fosps.gravitatehealth.eu/epi/api/fhir               	|                                       	          |
+| DESTINATION_SERVER        	| http://fhir-server-epi:8080/api/fhir               	|                                       	          |
 
 
 ### Environment variables for working mode: SMM_TOOL
@@ -116,7 +116,7 @@ data:
 | Task          	            | Description                                                 	| Possible values                       	          |
 |---------------------------- |-------------------------------------------------------------	|---------------------------------------	          |
 | CONNECTOR_MODE 	            | Working mode of the connector                               	| SMM_TOOL                                     	    |
-| DESTINATION_SERVER        	| https://gravitate-health.lst.tfo.upm.es/epi/api/fhir         	|                                       	          |
+| DESTINATION_SERVER        	| http://fhir-server-epi:8080/api/fhir               	|                                       	          |
 | SMM_SERVER_URL              | https://budibase.gravitate-health.lst.tfo.upm.es/api/public/v1|                                       	          |
 | SMM_APP_ID                	| Budibase app id                                              	|                                       	          |
 | SMM_TABLE_ID              	| Budibase table id                                            	|                                       	          |

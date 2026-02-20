@@ -14,4 +14,4 @@ spec:
             image: ghcr.io/gravitate-health/fhir-connector:latest
             env:
             - name: DESTINATION_SERVER
-              value: "https://gravitate-health.lst.tfo.upm.es/ips/api/fhir"
+              value: "http://fhir-server-ips:8080/api/fhir"
