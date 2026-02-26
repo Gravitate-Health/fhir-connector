@@ -25,7 +25,7 @@ spec:
         - name: CONNECTOR_MODE
           value: HAPI_FHIR_SERVER_PROXY
         - name: MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST
-          value: '["http://fhir-server-epi:8080/api/fhir/", "http://fhir-server-ips:8080/api/fhir/"]'
+          value: '["http://fhir-server-epi:8080/epi/api/fhir/", "http://fhir-server-ips:8080/ips/api/fhir/"]'
         - name: LOG_LEVEL
           value: INFO
       restartPolicy: Always

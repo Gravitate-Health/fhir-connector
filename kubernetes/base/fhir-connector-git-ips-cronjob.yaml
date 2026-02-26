@@ -25,7 +25,7 @@ spec:
             - name: MODE_GIT_FSH_SOURCE_REPO_BRANCH
               value: "prod"
             - name: DESTINATION_SERVER
-              value: "http://fhir-server-ips:8080/api/fhir"
+              value: "http://fhir-server-ips:8080/ips/api/fhir"
             - name: IPS_WHITELIST
               value: |
                 - "Bundle-gravitate-Alicia.json"
