@@ -1,0 +1,39 @@
+{{- if and (eq .Values.networking.type "istio") .Values.networking.istio.virtualService.enabled .Values.api.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "fhir-connector.fullname" . }}-api
+  labels:
+    {{- include "fhir-connector.labels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- toYaml .Values.networking.istio.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.networking.istio.virtualService.gateways | nindent 4 }}
+  http:
+    - match:
+        {{- range .Values.networking.istio.virtualService.match }}
+        - uri:
+            {{- if .prefix }}
+            prefix: {{ .prefix }}
+            {{- else if .exact }}
+            exact: {{ .exact }}
+            {{- end }}
+        {{- end }}
+      rewrite:
+        uri: {{ .Values.networking.istio.virtualService.rewriteUri | quote }}
+      route:
+        - destination:
+            host: {{ include "fhir-connector.fullname" . }}-api.{{ .Release.Namespace }}.svc.cluster.local
+            port:
+              number: {{ .Values.service.port }}
+      corsPolicy:
+        allowMethods:
+          {{- toYaml .Values.networking.istio.virtualService.corsPolicy.allowMethods | nindent 10 }}
+        allowOrigins:
+          {{- range .Values.networking.istio.virtualService.corsPolicy.allowOrigins }}
+          - exact: {{ . | quote }}
+          {{- end }}
+        allowHeaders:
+          {{- toYaml .Values.networking.istio.virtualService.corsPolicy.allowHeaders | nindent 10 }}
+{{- end }}

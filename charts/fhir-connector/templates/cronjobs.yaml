@@ -1,0 +1,59 @@
+{{- range $name, $cfg := .Values.cronjobs }}
+{{- if $cfg.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "fhir-connector.fullname" $ }}-{{ $name | kebabcase }}
+  labels:
+    {{- include "fhir-connector.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: cronjob
+    eu.gravitate-health.fosps.connector: "true"
+spec:
+  schedule: {{ $cfg.schedule | quote }}
+  suspend: {{ $cfg.suspend }}
+  successfulJobsHistoryLimit: {{ $cfg.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $cfg.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            sidecar.istio.io/inject: "false"
+          labels:
+            {{- include "fhir-connector.selectorLabels" $ | nindent 12 }}
+            app.kubernetes.io/component: cronjob
+        spec:
+          restartPolicy: {{ $cfg.restartPolicy }}
+          containers:
+            - name: {{ include "fhir-connector.fullname" $ }}-{{ $name | kebabcase }}
+              image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+              imagePullPolicy: {{ $.Values.image.pullPolicy }}
+              envFrom:
+                - configMapRef:
+                    name: {{ include "fhir-connector.fullname" $ }}-{{ $name | kebabcase }}-env
+              env:
+                - name: EMAIL_ENABLED
+                  value: {{ $.Values.email.enabled | quote }}
+                - name: EMAIL_SENDER
+                  value: {{ $.Values.email.sender | quote }}
+                - name: EMAIL_SMTP_SERVER
+                  value: {{ $.Values.email.smtpServer | quote }}
+                - name: EMAIL_RECIPIENT
+                  value: {{ $.Values.email.recipient | quote }}
+                - name: EMAIL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "fhir-connector.secretName" $ }}
+                      key: EMAIL_PASSWORD
+                {{- if eq $name "smmTool" }}
+                - name: SMM_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "fhir-connector.secretName" $ }}
+                      key: SMM_API_KEY
+                {{- end }}
+              resources:
+                {{- toYaml $cfg.resources | nindent 16 }}
+---
+{{- end }}
+{{- end }}

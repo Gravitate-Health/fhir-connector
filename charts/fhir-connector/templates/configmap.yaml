@@ -1,0 +1,29 @@
+{{- if .Values.api.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fhir-connector.fullname" . }}-api-env
+  labels:
+    {{- include "fhir-connector.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+data:
+  {{- range $key, $value := .Values.api.env }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
+{{- range $name, $cfg := .Values.cronjobs }}
+{{- if $cfg.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "fhir-connector.fullname" $ }}-{{ $name | kebabcase }}-env
+  labels:
+    {{- include "fhir-connector.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: cronjob
+data:
+  {{- range $key, $value := $cfg.env }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}

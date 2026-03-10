@@ -1,0 +1,206 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: ghcr.io/gravitate-health/fhir-connector
+  tag: v0.40.0
+  pullPolicy: Always
+
+serviceAccount:
+  create: false
+  name: focusing-manager-serviceaccount
+
+api:
+  enabled: true
+  replicaCount: 1
+  podAnnotations: {}
+  env:
+    ENVIRONMENT: prod
+    CONNECTOR_MODE: HAPI_FHIR_SERVER_PROXY
+    MODE_HAPI_FHIR_SERVER_PROXY_SERVERS_LIST: '["http://fhir-server-epi:8080/epi/api/fhir/", "http://fhir-server-ips:8080/ips/api/fhir/"]'
+    LOG_LEVEL: INFO
+  resources:
+    requests: {}
+    limits: {}
+
+service:
+  type: ClusterIP
+  port: 5000
+  targetPort: 5000
+
+secret:
+  create: true
+  name: ""
+  data:
+    EMAIL_PASSWORD: ""
+    SMM_API_KEY: ""
+
+email:
+  enabled: true
+  sender: fosps-noreply@lst.tfo.upm.es
+  smtpServer: smtp.lst.tfo.upm.es
+  recipient: fosps-logs@lst.tfo.upm.es
+
+cronjobs:
+  fhirSyncHl7:
+    enabled: true
+    schedule: "0 2 * * *"
+    suspend: true
+    successfulJobsHistoryLimit: 2
+    failedJobsHistoryLimit: 2
+    restartPolicy: OnFailure
+    resources:
+      requests: {}
+      limits: {}
+    env:
+      CONNECTOR_MODE: HAPI_FHIR_SERVER_SYNC
+      MODE_HAPI_FHIR_SERVER_SYNC_SOURCE_SERVER: https://sandbox.hl7europe.eu/gravitate-health/fhir
+      MODE_HAPI_FHIR_SERVER_SYNC_RESOURCES: "[Organization, MedicinalProductDefinition, Bundle, Patient, Observation, Composition]"
+      DESTINATION_SERVER: http://fhir-server-epi:8080/epi/api/fhir
+      LOG_LEVEL: INFO
+
+  gitEpi:
+    enabled: true
+    schedule: "0 2 * * *"
+    suspend: true
+    successfulJobsHistoryLimit: 2
+    failedJobsHistoryLimit: 2
+    restartPolicy: OnFailure
+    resources:
+      requests: {}
+      limits: {}
+    env:
+      CONNECTOR_MODE: GIT_FSH
+      MODE_GIT_FSH_SOURCE_REPO: https://github.com/hl7-eu/gravitate-health.git
+      MODE_GIT_FSH_SOURCE_REPO_BRANCH: mvp3
+      DESTINATION_SERVER: http://fhir-server-epi:8080/epi/api/fhir
+      LOG_LEVEL: INFO
+
+  gitIps:
+    enabled: true
+    schedule: "0 2 * * *"
+    suspend: true
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+    restartPolicy: OnFailure
+    resources:
+      requests: {}
+      limits: {}
+    env:
+      CONNECTOR_MODE: GIT_FSH
+      MODE_GIT_FSH_SOURCE_REPO: https://github.com/hl7-eu/gravitate-health-ips.git
+      MODE_GIT_FSH_SOURCE_REPO_BRANCH: prod
+      DESTINATION_SERVER: http://fhir-server-ips:8080/ips/api/fhir
+      IPS_WHITELIST: |
+        - "Bundle-gravitate-Alicia.json"
+        - "Bundle-gravitate-Pedro.json"
+      LOG_LEVEL: INFO
+
+  expugneEpi:
+    enabled: true
+    schedule: "0 1 * * *"
+    suspend: true
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+    restartPolicy: OnFailure
+    resources:
+      requests: {}
+      limits: {}
+    env:
+      CONNECTOR_MODE: DELETE_RESOURCES
+      DESTINATION_SERVER: http://fhir-server-epi:8080/epi/api/fhir
+      LOG_LEVEL: INFO
+
+  expugneIps:
+    enabled: true
+    schedule: "0 1 * * *"
+    suspend: true
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+    restartPolicy: OnFailure
+    resources:
+      requests: {}
+      limits: {}
+    env:
+      CONNECTOR_MODE: DELETE_RESOURCES
+      DESTINATION_SERVER: http://fhir-server-ips:8080/ips/api/fhir
+      LOG_LEVEL: INFO
+
+  smmTool:
+    enabled: true
+    schedule: "0 3 * * *"
+    suspend: true
+    successfulJobsHistoryLimit: 1
+    failedJobsHistoryLimit: 2
+    restartPolicy: OnFailure
+    resources:
+      requests: {}
+      limits: {}
+    env:
+      CONNECTOR_MODE: SMM_TOOL
+      DESTINATION_SERVER: http://fhir-server-epi:8080/epi/api/fhir
+      SMM_SERVER_URL: https://budibase.gravitate-health.lst.tfo.upm.es
+      OBJECT_STORAGE_URL: https://fosps.gravitatehealth.eu/smm
+      SMM_APP_ID: app_dev_7944ab7d13894779b8c6cb85df08305e
+      SMM_TABLE_ID: ta_358a36ba4e4e4b37ace3bd7eda5268a1
+      LOG_LEVEL: INFO
+
+networking:
+  # Select networking exposure mode:
+  # - istio: render Istio VirtualService (and optional Gateway/AuthPolicy)
+  # - ingress: render standard Kubernetes Ingress
+  # - none: render neither Istio nor Ingress resources
+  type: istio
+
+  istio:
+    virtualService:
+      enabled: true
+      hosts:
+        - "*"
+      gateways:
+        - gh-gateway
+      match:
+        - prefix: /connector/api/
+        - exact: /connector/api
+      rewriteUri: /
+      corsPolicy:
+        allowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        allowOrigins:
+          - "*"
+        allowHeaders:
+          - content-type
+          - Accept
+
+    gateway:
+      enabled: false
+      name: ""
+      selector:
+        istio: ingressgateway
+      hosts:
+        - "*"
+      port:
+        number: 80
+        name: http
+        protocol: HTTP
+
+    authorizationPolicy:
+      enabled: true
+      rules:
+        - methods: ["GET"]
+          paths: ["/connectors/list", "/connectors/list/"]
+        - methods: ["POST"]
+          paths: ["/connectors/*"]
+
+  ingress:
+    enabled: true
+    className: ""
+    annotations: {}
+    hosts:
+      - host: ""
+        paths:
+          - path: /connector/api
+            pathType: Prefix
+    tls: []

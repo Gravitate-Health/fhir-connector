@@ -1,0 +1,26 @@
+{{- if and (eq .Values.networking.type "istio") .Values.networking.istio.authorizationPolicy.enabled .Values.api.enabled }}
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "fhir-connector.fullname" . }}-authpolicy
+  labels:
+    {{- include "fhir-connector.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "fhir-connector.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  action: ALLOW
+  rules:
+    {{- range .Values.networking.istio.authorizationPolicy.rules }}
+    - to:
+        - operation:
+            methods:
+              {{- toYaml .methods | nindent 14 }}
+            paths:
+              {{- toYaml .paths | nindent 14 }}
+      from:
+        - source:
+            requestPrincipals: ["*"]
+    {{- end }}
+{{- end }}

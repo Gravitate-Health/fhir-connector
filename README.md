@@ -170,6 +170,25 @@ Development:
 kubectl apply -k kubernetes/dev
 ```
 
+### Deploy via Helm (OCI)
+
+```bash
+# Login to registry (if private)
+helm registry login ghcr.io
+
+# Deploy directly from the registry
+helm install my-release oci://ghcr.io/<your-org>/charts/<chart-name> --version <version>
+```
+
+The chart source is available locally at `charts/fhir-connector`.
+
+### Local Development
+
+```bash
+helm lint charts/fhir-connector
+helm template my-release charts/fhir-connector
+```
+
 
 Usage
 -----
