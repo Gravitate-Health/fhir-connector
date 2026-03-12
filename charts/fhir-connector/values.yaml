@@ -147,7 +147,7 @@ cronjobs:
 
 networking:
   # Select networking exposure mode:
-  # - istio: render Istio VirtualService (and optional Gateway/AuthPolicy)
+  # - istio: render Istio VirtualService/AuthPolicy using an existing Gateway
   # - ingress: render standard Kubernetes Ingress
   # - none: render neither Istio nor Ingress resources
   type: istio
@@ -157,6 +157,7 @@ networking:
       enabled: true
       hosts:
         - "*"
+      # Existing Istio Gateway resource names for this VirtualService to bind to.
       gateways:
         - gh-gateway
       match:
@@ -173,18 +174,6 @@ networking:
         allowHeaders:
           - content-type
           - Accept
-
-    gateway:
-      enabled: false
-      name: ""
-      selector:
-        istio: ingressgateway
-      hosts:
-        - "*"
-      port:
-        number: 80
-        name: http
-        protocol: HTTP
 
     authorizationPolicy:
       enabled: true
