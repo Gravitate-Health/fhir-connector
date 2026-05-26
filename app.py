@@ -36,7 +36,7 @@ import os
 """ from connectors_modes import git_fsh
 from connectors_modes import fhir_server_sync """
 
-from connectors_modes import git_fsh, fhir_server_sync, delete_resources, fhir_server_proxy, smm_tool
+from connectors_modes import git_fsh, fhir_server_sync, delete_resources, smm_tool
 from datetime import datetime, timezone
 
 """
@@ -98,8 +98,9 @@ if __name__ == "__main__":
         
         resources, errors = fhir_server_sync.connector_fhir_server_sync(mail_client)
 
-    # Working mode: HAPI_FHIR_SERVER_SYNC
+    # Working mode: HAPI_FHIR_SERVER_PROXY
     elif MODE == Connector_Modes.HAPI_FHIR_SERVER_PROXY:
+        from connectors_modes import fhir_server_proxy
         fhir_server_proxy.run()
     
     elif MODE == Connector_Modes.DELETE_RESOURCES:
