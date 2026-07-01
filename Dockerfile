@@ -15,17 +15,20 @@
 #FROM  python:3.8.3-alpine
 FROM nikolaik/python-nodejs:python3.11-nodejs20
 
-RUN pip3 install --upgrade pip
+# Run root-level installs and prepare app directory
+RUN pip3 install --upgrade pip && \
+    npm install -g fsh-sushi@3.11.1 && \
+    mkdir -p /app && chown pn:pn /app
 
+# Switch to non-root user; HOME=/home/pn, so pip --user and sushi cache
+# both live under /home/pn and are accessible at runtime
+USER pn
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN npm install -g fsh-sushi@3.11.1
+COPY --chown=pn:pn requirements.txt requirements.txt
 RUN pip3 install --user -r requirements.txt
 
-COPY . .
-
-#ENV PATH="/home/myuser/.local/bin:${PATH}"
+COPY --chown=pn:pn . .
 
 #CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0"]
 

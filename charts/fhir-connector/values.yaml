@@ -36,7 +36,7 @@ secret:
     SMM_API_KEY: ""
 
 email:
-  enabled: true
+  enabled: false
   sender: fosps-noreply@lst.tfo.upm.es
   smtpServer: smtp.lst.tfo.upm.es
   recipient: fosps-logs@lst.tfo.upm.es

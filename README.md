@@ -67,7 +67,7 @@ The following environment variables must be set:
 | WHITELIST         	| List of resources to get, if not all should be retrieved     	| ["resource1.json", "resource2.json"]   	          |
 | DESTINATION_SERVER  | URL of the destination FHIR server                          	|                                       	          |
 | LOG_LEVEL         	| Log level                                                    	| CRITICAL, ERROR, WARNING, INFO, DEBUG  	          |
-| EMAIL_ENABLED       | Enable sending of emails with the results of the connector   	| true                                              |
+| EMAIL_ENABLED       | Enable sending of emails with the results of the connector   	| false                                              |
 | EMAIL_SENDER        | Email address of the sender                                 	|                                        	          |
 | EMAIL_PASSWORD      | Must be set as a base64 encoded secret                       	|                                        	          |
 | EMAIL_SMTP_SERVER   | SMTP server address                                         	|                                        	          |
