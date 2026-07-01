@@ -30,7 +30,7 @@ spec:
               value: INFO
               # Email settings
             - name: EMAIL_ENABLED
-              value: "true"
+              value: "false"
             - name: EMAIL_SENDER
               value: "fosps-noreply@lst.tfo.upm.es"
             - name: EMAIL_SMTP_SERVER
